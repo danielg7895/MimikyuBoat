@@ -15,33 +15,23 @@ namespace MimikyuBoat
         // si estoy seleccionando el area del player o target
         public volatile bool playerAreaConfigurationPhase = false;
         public volatile bool targetAreaConfigurationPhase = false;
-        public Rectangle playerRect;
-        public Rectangle targetRect;
+
         public volatile int updateInterval = 1000;
+        public bool paused = false;
+        public bool botEnabled = false;
 
         // private variables
-        int GCCleanInterval;
-        string playerImagePath = "temp/player.jpeg";
-        string targetImagePath = "temp/target.jpeg";
-
-        ImageManager imageManager;
-        ImageRecognition imageRecognition;
-        Player player;
-        Target target;
-        Form1 form1;
-
-        #region player and target stats
-        int playerCP;
-        int playerHP;
-        int playerMP;
-
-        int targetHP;
-        #endregion
+        readonly ImageManager imageManager;
+        readonly ImageRecognition imageRecognition;
+        readonly Player player;
+        readonly Target target;
+        readonly Form1 form1;
 
         #region shurtcuts
         Keyboard.DirectXKeyStrokes hpPot = Keyboard.DirectXKeyStrokes.DIK_5;
-        Keyboard.DirectXKeyStrokes target1 = Keyboard.DirectXKeyStrokes.DIK_8;
-        Keyboard.DirectXKeyStrokes target2 = Keyboard.DirectXKeyStrokes.DIK_9;
+        Keyboard.DirectXKeyStrokes target1 = Keyboard.DirectXKeyStrokes.DIK_7;
+        Keyboard.DirectXKeyStrokes target2 = Keyboard.DirectXKeyStrokes.DIK_8;
+        Keyboard.DirectXKeyStrokes target3 = Keyboard.DirectXKeyStrokes.DIK_9;
         Keyboard.DirectXKeyStrokes attack = Keyboard.DirectXKeyStrokes.DIK_0;
 
         #endregion
@@ -52,121 +42,111 @@ namespace MimikyuBoat
         public MimikyuBoat(Form1 form1)
         {
             this.form1 = form1;
-            imageManager = new ImageManager();
-            imageRecognition = new ImageRecognition();
             player = Player.Instance;
             target = Target.Instance;
-
-            Thread updateThread = new Thread(new ThreadStart(Update));
-            updateThread.Start();
-        }
-
-        public void Update()
-        {
-            int counter = 0;
-            GCCleanInterval = updateInterval * 30;
-
-            // metodo que se ejecuta cada intervalo definido, sirve para actualizar todo lo que es UI y pertenece a esta clase.
-            while (true)
-            {
-                counter += updateInterval;
-
-                if (form1.playerRegionLoaded)
-                {
-                    // guardo la imagen del player
-                    Bitmap bmp = imageManager.GetImageFromRect(playerRect);
-                    if ((System.IO.File.Exists(playerImagePath)))
-                    {
-                        System.IO.File.Delete(playerImagePath);
-                    }
-                    bmp.Save(playerImagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    // actualizo imagen del player en la interfaz
-                    form1.Invoke((MethodInvoker)delegate
-                    {
-                        form1.SetPlayerImage(bmp);
-                    });
-                }
-
-                if (form1.targetRegionLoaded)
-                {
-                    // guardo la imagen del target
-                    Bitmap bmp = imageManager.GetImageFromRect(targetRect);
-                    bmp.Save(targetImagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    // actualizo imagen del target en la interfaz
-                    form1.Invoke((MethodInvoker)delegate
-                    {
-                        form1.SetTargetImage(bmp);
-                    });
-                }
-                if ( (counter % GCCleanInterval) == 0)
-                {
-                    // ejecuto el colector de mugre cada updateinterval * 30
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                    counter = 0;
-                }
-
-
-                Thread.Sleep(updateInterval);
-            }
+            imageManager = ImageManager.Instance;
+            imageRecognition = new ImageRecognition();
 
         }
 
-        public void UpdateStats()
-        {
-
-        }
-
+ 
         public void Start()
         {
-            // Verifico si estan cargadas las imagenes del player y del target
-            if (!form1.playerRegionLoaded)
-            {
-                StartPlayerAreaConfiguration();
-            }
-            if (!form1.targetRegionLoaded)
-            {
-                StartTargetAreaConfiguration();
-            }
 
-            // comienzo el bot
-            PrintDebug("Comenzando a botear !");
+            // comienzo el bot, previamente ya se debio haber validado que toda la configuracion previa
+            // este hecha.
+            form1.ConsoleWrite("Comenzando a botear !");
             form1.Invoke((MethodInvoker)delegate
             {
                 form1.ChangeFormColor(Color.Green);
             });
 
+            Keyboard.DirectXKeyStrokes[] targets = new Keyboard.DirectXKeyStrokes[3] { target1, target2, target3 };
+            int previousTargetHP = 1;
+            var watch = Stopwatch.StartNew();
+            var spoiled = true;
+            int totalTargets = 0;
             while (true)
             {
-                // obtengo stats del player y del target reconociendo las imagenes
-                playerCP = imageRecognition.RecognizePlayerCP();
-                playerHP = imageRecognition.RecognizePlayerHP();
-                playerMP = imageRecognition.RecognizePlayerMP();
-                targetHP = imageRecognition.RecognizeTargetHP();
-                UpdateStats();
-                PrintDebug("Player HP: " + playerHP.ToString());
-                PrintDebug("Target HP: " + targetHP.ToString());
-
-                if (playerHP < 50)
+                botEnabled = true;
+                if (paused)
                 {
-                    PrintDebug("Player HP muy baja, usando pocion");
-                    //UsePotion();
+                    Thread.Sleep(500);
+                    continue;
+                }
+                // comienzo un timer para detectar cannot see target cuando la hp target no baja en un tiempo
+                // obtengo stats del player y del target reconociendo las imagenes
+                //playerCP = imageRecognition.RecognizePlayerStat();
+                player.hp = imageRecognition.RecognizePlayerStat((int)player.hpRow);
+                //playerMP = imageRecognition.RecognizePlayerStat();
+                target.hp = imageRecognition.RecognizeTargetHP();
+                form1.ConsoleWrite("Player HP: " + player.hp.ToString());
+                form1.ConsoleWrite("Target HP: " + target.hp.ToString());
+
+                if (previousTargetHP == target.hp && watch.ElapsedMilliseconds > 20000)
+                {
+                    watch.Restart();
+                    TryEscapeCannotSeeTarget();
+                    currentTarget = targets[totalTargets % targets.Length];
+                    totalTargets++;
+                }
+                else if (previousTargetHP != target.hp)
+                {
+                    watch.Restart();
+                }
+
+                if (player.hp < 80)
+                {
+                    form1.ConsoleWrite("Player HP muy baja, usando pocion");
+                    UsePotion();
+                }
+
+                if (target.hp <= 80 && target.hp >= 60)
+                {
+                    spoiled = false;
                 }
                 // TODO: si no hay target > buscar target
                 // TODO: agregar timer
-                if (targetHP <= 0)
+                if (target.hp <= 0)
                 {
-                    PrintDebug("Target Muerto, buscando siguiente target...");
+                    Thread.Sleep(200);
+                    form1.ConsoleWrite("Usando: Sweeper");
+                    UseShortCut(Keyboard.DirectXKeyStrokes.DIK_3);
+                    form1.ConsoleWrite("Target Muerto, buscando siguiente target...");
+                    Thread.Sleep(200);
+                    UseShortCut(Keyboard.DirectXKeyStrokes.DIK_4);
+                    Thread.Sleep(200);
+                    UseShortCut(Keyboard.DirectXKeyStrokes.DIK_4);
+
                     previousTarget = currentTarget;
                     Thread.Sleep(500);
+                    currentTarget = targets[totalTargets % targets.Length];
+                    totalTargets++;
                 }
-                currentTarget = target1;
-                //AttackTarget(currentTarget);
+                AttackTarget(currentTarget, spoiled);
+                previousTargetHP = (int)target.hp;
+
+                spoiled = true;
                 Thread.Sleep(updateInterval);
             }
 
+        }
+
+        public void TryEscapeCannotSeeTarget()
+        {
+            form1.ConsoleWrite("Cannot see target?? intentando salir...");
+
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_S, false, Keyboard.InputType.Keyboard);
+            Thread.Sleep(new Random().Next(1000, 3000));
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_S, true, Keyboard.InputType.Keyboard);
+
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_A, false, Keyboard.InputType.Keyboard);
+            Thread.Sleep(new Random().Next(1000, 3000));
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_A, true, Keyboard.InputType.Keyboard);
+
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_W, false, Keyboard.InputType.Keyboard);
+            Thread.Sleep(new Random().Next(1000, 3000));
+            Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_W, true, Keyboard.InputType.Keyboard);
         }
 
         public void UsePotion()
@@ -174,7 +154,7 @@ namespace MimikyuBoat
             UseShortCut(hpPot);
         }
 
-        public void AttackTarget(Keyboard.DirectXKeyStrokes targetShortCut)
+        public void AttackTarget(Keyboard.DirectXKeyStrokes targetShortCut, bool spoiled = true)
         {
             if(currentTarget == previousTarget)
             {
@@ -182,7 +162,13 @@ namespace MimikyuBoat
             }
             UseShortCut(targetShortCut); // targeteo mob
             Thread.Sleep(500);
-            UseShortCut(attack); // ataco
+            if (!spoiled)
+            {
+                UseShortCut(Keyboard.DirectXKeyStrokes.DIK_2); // spoil
+            } else
+            {
+                UseShortCut(attack); // ataco
+            }
         }
 
         public void UseShortCut(Keyboard.DirectXKeyStrokes key, int miliseconds = 121)
@@ -190,75 +176,6 @@ namespace MimikyuBoat
             Keyboard.SendKey(key, false, Keyboard.InputType.Keyboard);
             Thread.Sleep(miliseconds);
             Keyboard.SendKey(key, true, Keyboard.InputType.Keyboard);
-        }
-
-        public void StartPlayerAreaConfiguration()
-        {
-            // TODO: verificar previamente si ya hay una area del player guardada
-            PrintDebug("Pone el cursor en la esquina superior donde esta la vida de tu pj y apreta enter.");
-            while(!form1.enterPressed)
-            {
-                Thread.Sleep(200);
-            }
-            form1.enterPressed = false;
-            Point startPos = imageManager.GetCursorPosition();
-
-            PrintDebug("Pone el cursor en la esquina inferior donde esta la vida de tu pj y apreta enter.");
-            while (!form1.enterPressed)
-            {
-                Thread.Sleep(200);
-            }
-            form1.enterPressed = false;
-            Point endPos = imageManager.GetCursorPosition();
-
-            Debug.WriteLine(startPos);
-            Debug.WriteLine(endPos);
-
-            Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            playerRect = new Rectangle(startPos, rectSize);
-
-            // seteo como que la region del player ya esta cargada para poder comenzar el update.
-            form1.playerRegionLoaded = true;
-            PrintDebug("Area del player guardada");
-
-        }
-
-        public void StartTargetAreaConfiguration()
-        {
-            // TODO: verificar previamente si ya hay una area del target guardada
-            PrintDebug("Pone el cursor en la esquina superior donde esta la vida del target y apreta enter.");
-            while (!form1.enterPressed)
-            {
-                Thread.Sleep(200);
-            }
-            form1.enterPressed = false;
-            Point startPos = imageManager.GetCursorPosition();
-
-            PrintDebug("Pone el cursor en la esquina inferior donde esta la vida del target y apreta enter.");
-            while (!form1.enterPressed)
-            {
-                Thread.Sleep(200);
-            }
-            form1.enterPressed = false;
-            Point endPos = imageManager.GetCursorPosition();
-
-            Debug.WriteLine(startPos);
-            Debug.WriteLine(endPos);
-
-            Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            targetRect = new Rectangle(startPos, rectSize);
-
-            // seteo como que la region del player ya esta cargada para poder comenzar el update.
-            form1.targetRegionLoaded = true;
-            PrintDebug("Area del target guardada");
-        }
-
-        void PrintDebug(string text)
-        {
-            form1.Invoke((MethodInvoker)delegate
-            {
-                form1.ConsoleWrite(text);
-            });
         }
 
     }

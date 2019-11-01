@@ -24,6 +24,19 @@ namespace MimikyuBoat
         public static extern int ReleaseDC(IntPtr window, IntPtr dc);
         #endregion
 
+        private static ImageManager _Instance;
+        public static ImageManager Instance
+        {
+            get
+            {
+                if (_Instance == null)
+                {
+                    _Instance = new ImageManager();
+                }
+                return _Instance;
+            }
+        }
+
         Bitmap bmp;
 
         public Point GetCursorPosition()
@@ -47,7 +60,6 @@ namespace MimikyuBoat
 
         public void ToGrayScale(Bitmap Bmp)
         {
-
             Color c;
 
             for (int y = 0; y < Bmp.Height; y++)
@@ -61,7 +73,6 @@ namespace MimikyuBoat
                     } else
                     {
                         Bmp.SetPixel(x, y, Color.FromArgb(0, 0, 0));
-
                     }
                 }
         }

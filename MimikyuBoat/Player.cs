@@ -13,10 +13,18 @@ namespace MimikyuBoat
         public int mp;
         public int race;
         public int playerClass;
+        public string nickName = "";
 
-        public int hpRow;
-        public int mpRow;
-        public int cpRow;
+        // en que pixel comienza la barra
+        public int cpBarStart;
+        public int hpBarStart;
+        public int mpBarStart;
+
+        public int hpRow = -1;
+        public int mpRow = -1;
+        public int cpRow = -1;
+
+        public string imagePath = "temp/player.jpeg";
 
         #region singleton
         private static Player _instance;

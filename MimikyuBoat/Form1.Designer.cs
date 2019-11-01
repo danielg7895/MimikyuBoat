@@ -42,6 +42,7 @@
             this.startButton = new System.Windows.Forms.Button();
             this.consoleDebugTextBox = new System.Windows.Forms.TextBox();
             this.containerPanel = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
             this.statsConfigButton = new System.Windows.Forms.Button();
             this.statsConfigLabel = new System.Windows.Forms.Label();
             this.statsSaveButton = new System.Windows.Forms.Button();
@@ -50,17 +51,21 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.recoverMPStandTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.recoverMPCheckBox = new System.Windows.Forms.CheckBox();
+            this.recoverMPSitTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.autoPotCheckBox = new System.Windows.Forms.CheckBox();
             this.autoPotHPTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.windowVisibilityCheckBox = new System.Windows.Forms.CheckBox();
+            this.TabContainer = new System.Windows.Forms.TabControl();
+            this.botTabPage = new System.Windows.Forms.TabPage();
+            this.skillConfigTabPage = new System.Windows.Forms.TabPage();
+            this.updateIntervalUpDown = new System.Windows.Forms.NumericUpDown();
             this.playerPanelContainer.SuspendLayout();
             this.playerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.playerImage)).BeginInit();
@@ -70,6 +75,9 @@
             this.containerPanel.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.TabContainer.SuspendLayout();
+            this.botTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.updateIntervalUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // playerPanelContainer
@@ -206,6 +214,8 @@
             // containerPanel
             // 
             this.containerPanel.BackColor = System.Drawing.Color.White;
+            this.containerPanel.Controls.Add(this.updateIntervalUpDown);
+            this.containerPanel.Controls.Add(this.label6);
             this.containerPanel.Controls.Add(this.statsConfigButton);
             this.containerPanel.Controls.Add(this.statsConfigLabel);
             this.containerPanel.Controls.Add(this.statsSaveButton);
@@ -223,10 +233,19 @@
             this.containerPanel.Controls.Add(this.targetPanelContainer);
             this.containerPanel.Controls.Add(this.startButton);
             this.containerPanel.Controls.Add(this.targetButtonAreaConfig);
-            this.containerPanel.Location = new System.Drawing.Point(4, 4);
+            this.containerPanel.Location = new System.Drawing.Point(0, 0);
             this.containerPanel.Name = "containerPanel";
             this.containerPanel.Size = new System.Drawing.Size(666, 606);
             this.containerPanel.TabIndex = 9;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 415);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(150, 13);
+            this.label6.TabIndex = 26;
+            this.label6.Text = "Intervalo de actualizacion (ms)";
             // 
             // statsConfigButton
             // 
@@ -324,23 +343,24 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.textBox2);
+            this.panel2.Controls.Add(this.recoverMPStandTextBox);
             this.panel2.Controls.Add(this.label3);
-            this.panel2.Controls.Add(this.checkBox2);
-            this.panel2.Controls.Add(this.textBox1);
+            this.panel2.Controls.Add(this.recoverMPCheckBox);
+            this.panel2.Controls.Add(this.recoverMPSitTextBox);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Location = new System.Drawing.Point(8, 249);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(192, 74);
             this.panel2.TabIndex = 15;
             // 
-            // textBox2
+            // recoverMPStandTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(131, 47);
-            this.textBox2.MaxLength = 3;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(55, 20);
-            this.textBox2.TabIndex = 15;
+            this.recoverMPStandTextBox.Location = new System.Drawing.Point(131, 47);
+            this.recoverMPStandTextBox.MaxLength = 3;
+            this.recoverMPStandTextBox.Name = "recoverMPStandTextBox";
+            this.recoverMPStandTextBox.Size = new System.Drawing.Size(55, 20);
+            this.recoverMPStandTextBox.TabIndex = 15;
+            this.recoverMPStandTextBox.TextChanged += new System.EventHandler(this.RecoverMPStandTextBox_TextChanged);
             // 
             // label3
             // 
@@ -351,23 +371,25 @@
             this.label3.TabIndex = 14;
             this.label3.Text = "Pararse cuando MP >=";
             // 
-            // checkBox2
+            // recoverMPCheckBox
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(0, 3);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(109, 17);
-            this.checkBox2.TabIndex = 11;
-            this.checkBox2.Text = "Recargar MP  (%)";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.recoverMPCheckBox.AutoSize = true;
+            this.recoverMPCheckBox.Location = new System.Drawing.Point(0, 3);
+            this.recoverMPCheckBox.Name = "recoverMPCheckBox";
+            this.recoverMPCheckBox.Size = new System.Drawing.Size(109, 17);
+            this.recoverMPCheckBox.TabIndex = 11;
+            this.recoverMPCheckBox.Text = "Recargar MP  (%)";
+            this.recoverMPCheckBox.UseVisualStyleBackColor = true;
+            this.recoverMPCheckBox.CheckedChanged += new System.EventHandler(this.RecoverMPCheckBox_CheckedChanged);
             // 
-            // textBox1
+            // recoverMPSitTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(131, 23);
-            this.textBox1.MaxLength = 3;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(55, 20);
-            this.textBox1.TabIndex = 13;
+            this.recoverMPSitTextBox.Location = new System.Drawing.Point(131, 23);
+            this.recoverMPSitTextBox.MaxLength = 3;
+            this.recoverMPSitTextBox.Name = "recoverMPSitTextBox";
+            this.recoverMPSitTextBox.Size = new System.Drawing.Size(55, 20);
+            this.recoverMPSitTextBox.TabIndex = 13;
+            this.recoverMPSitTextBox.TextChanged += new System.EventHandler(this.RecoverMPSitTextBox_TextChanged);
             // 
             // label2
             // 
@@ -380,7 +402,7 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.checkBox1);
+            this.panel1.Controls.Add(this.autoPotCheckBox);
             this.panel1.Controls.Add(this.autoPotHPTextBox);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(8, 188);
@@ -388,15 +410,16 @@
             this.panel1.Size = new System.Drawing.Size(192, 55);
             this.panel1.TabIndex = 14;
             // 
-            // checkBox1
+            // autoPotCheckBox
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(0, 3);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(102, 17);
-            this.checkBox1.TabIndex = 11;
-            this.checkBox1.Text = "Auto HP Pot (%)";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.autoPotCheckBox.AutoSize = true;
+            this.autoPotCheckBox.Location = new System.Drawing.Point(0, 3);
+            this.autoPotCheckBox.Name = "autoPotCheckBox";
+            this.autoPotCheckBox.Size = new System.Drawing.Size(102, 17);
+            this.autoPotCheckBox.TabIndex = 11;
+            this.autoPotCheckBox.Text = "Auto HP Pot (%)";
+            this.autoPotCheckBox.UseVisualStyleBackColor = true;
+            this.autoPotCheckBox.CheckedChanged += new System.EventHandler(this.AutoPotCheckBox_CheckedChanged);
             // 
             // autoPotHPTextBox
             // 
@@ -405,6 +428,7 @@
             this.autoPotHPTextBox.Name = "autoPotHPTextBox";
             this.autoPotHPTextBox.Size = new System.Drawing.Size(55, 20);
             this.autoPotHPTextBox.TabIndex = 13;
+            this.autoPotHPTextBox.TextChanged += new System.EventHandler(this.AutoPotHPTextBox_TextChanged);
             // 
             // label1
             // 
@@ -440,6 +464,69 @@
             this.windowVisibilityCheckBox.UseVisualStyleBackColor = true;
             this.windowVisibilityCheckBox.CheckedChanged += new System.EventHandler(this.WindowVisibilityCheckBox_CheckedChanged);
             // 
+            // TabContainer
+            // 
+            this.TabContainer.Controls.Add(this.botTabPage);
+            this.TabContainer.Controls.Add(this.skillConfigTabPage);
+            this.TabContainer.ItemSize = new System.Drawing.Size(42, 18);
+            this.TabContainer.Location = new System.Drawing.Point(5, 5);
+            this.TabContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.TabContainer.Multiline = true;
+            this.TabContainer.Name = "TabContainer";
+            this.TabContainer.Padding = new System.Drawing.Point(0, 0);
+            this.TabContainer.SelectedIndex = 0;
+            this.TabContainer.Size = new System.Drawing.Size(674, 629);
+            this.TabContainer.TabIndex = 25;
+            this.TabContainer.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.TabContainer_Selecting);
+            // 
+            // botTabPage
+            // 
+            this.botTabPage.BackColor = System.Drawing.Color.Transparent;
+            this.botTabPage.Controls.Add(this.containerPanel);
+            this.botTabPage.Location = new System.Drawing.Point(4, 22);
+            this.botTabPage.Name = "botTabPage";
+            this.botTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.botTabPage.Size = new System.Drawing.Size(666, 603);
+            this.botTabPage.TabIndex = 0;
+            this.botTabPage.Text = "Bot";
+            // 
+            // skillConfigTabPage
+            // 
+            this.skillConfigTabPage.BackColor = System.Drawing.Color.DimGray;
+            this.skillConfigTabPage.Location = new System.Drawing.Point(4, 22);
+            this.skillConfigTabPage.Margin = new System.Windows.Forms.Padding(0);
+            this.skillConfigTabPage.Name = "skillConfigTabPage";
+            this.skillConfigTabPage.Size = new System.Drawing.Size(666, 603);
+            this.skillConfigTabPage.TabIndex = 1;
+            this.skillConfigTabPage.Text = "Skill configuracion";
+            // 
+            // updateIntervalUpDown
+            // 
+            this.updateIntervalUpDown.BackColor = System.Drawing.Color.White;
+            this.updateIntervalUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.updateIntervalUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.updateIntervalUpDown.Location = new System.Drawing.Point(11, 432);
+            this.updateIntervalUpDown.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.updateIntervalUpDown.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.updateIntervalUpDown.Name = "updateIntervalUpDown";
+            this.updateIntervalUpDown.Size = new System.Drawing.Size(142, 23);
+            this.updateIntervalUpDown.TabIndex = 27;
+            this.updateIntervalUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.updateIntervalUpDown.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.updateIntervalUpDown.ValueChanged += new System.EventHandler(this.UpdateIntervalUpDown_ValueChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -447,8 +534,8 @@
             this.BackColor = System.Drawing.Color.Gray;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(674, 614);
-            this.Controls.Add(this.containerPanel);
+            this.ClientSize = new System.Drawing.Size(686, 640);
+            this.Controls.Add(this.TabContainer);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Name = "Form1";
@@ -467,6 +554,9 @@
             this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.TabContainer.ResumeLayout(false);
+            this.botTabPage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.updateIntervalUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -481,16 +571,16 @@
         private System.Windows.Forms.TextBox consoleDebugTextBox;
         private System.Windows.Forms.Panel containerPanel;
         private System.Windows.Forms.CheckBox windowVisibilityCheckBox;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox autoPotCheckBox;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.CheckBox recoverMPCheckBox;
+        private System.Windows.Forms.TextBox recoverMPSitTextBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox autoPotHPTextBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox recoverMPStandTextBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
@@ -505,6 +595,11 @@
         private System.Windows.Forms.Panel targetPanel;
         private System.Windows.Forms.Panel targetStatsMarker;
         private System.Windows.Forms.PictureBox targetImage;
+        private System.Windows.Forms.TabControl TabContainer;
+        private System.Windows.Forms.TabPage botTabPage;
+        private System.Windows.Forms.TabPage skillConfigTabPage;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.NumericUpDown updateIntervalUpDown;
     }
 }
 

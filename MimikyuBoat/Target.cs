@@ -6,15 +6,18 @@ using System.Threading.Tasks;
 
 namespace MimikyuBoat
 {
-    class Target
-    {
+    class Target {
         public int cp;
         public int hp;
         public int mp;
 
-        public int hpRow;
-        public int mpRow;
-        public int cpRow;
+        public int hpBarStart;
+
+        public int? hpRow = null;
+        public int? mpRow = null;
+        public int? cpRow = null;
+
+        public string imagePath = "temp/target.jpeg";
 
         #region singleton
         private static Target _instance;
