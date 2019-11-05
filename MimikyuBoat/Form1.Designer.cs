@@ -42,7 +42,6 @@
             this.startButton = new System.Windows.Forms.Button();
             this.consoleDebugTextBox = new System.Windows.Forms.TextBox();
             this.containerPanel = new System.Windows.Forms.Panel();
-            this.label6 = new System.Windows.Forms.Label();
             this.statsConfigButton = new System.Windows.Forms.Button();
             this.statsConfigLabel = new System.Windows.Forms.Label();
             this.statsSaveButton = new System.Windows.Forms.Button();
@@ -50,22 +49,34 @@
             this.zoneComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.recoverMPStandTextBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.recoverMPCheckBox = new System.Windows.Forms.CheckBox();
-            this.recoverMPSitTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.autoPotCheckBox = new System.Windows.Forms.CheckBox();
-            this.autoPotHPTextBox = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
-            this.windowVisibilityCheckBox = new System.Windows.Forms.CheckBox();
+            this.alwaysOnTopCheckBox = new System.Windows.Forms.CheckBox();
             this.TabContainer = new System.Windows.Forms.TabControl();
             this.botTabPage = new System.Windows.Forms.TabPage();
-            this.skillConfigTabPage = new System.Windows.Forms.TabPage();
+            this.botConfigTabPanel = new System.Windows.Forms.TabPage();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.userNameTextBox = new System.Windows.Forms.TextBox();
+            this.addUserButton = new System.Windows.Forms.Button();
+            this.separator = new System.Windows.Forms.Label();
+            this.configLoadButton = new System.Windows.Forms.Button();
+            this.configSaveButton = new System.Windows.Forms.Button();
+            this.configurationLoadLabel = new System.Windows.Forms.Label();
             this.updateIntervalUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.panel10 = new System.Windows.Forms.Panel();
+            this.recoverMPStandTextBox = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.recoverMPCheckBox = new System.Windows.Forms.CheckBox();
+            this.recoverMPSitTextBox = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.panel11 = new System.Windows.Forms.Panel();
+            this.autoPotCheckBox = new System.Windows.Forms.CheckBox();
+            this.autoPotTextBox = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
+            this.skillConfigTabPage = new System.Windows.Forms.TabPage();
+            this.selectedWindowName = new System.Windows.Forms.Label();
+            this.targetConfigTabPage = new System.Windows.Forms.TabPage();
             this.playerPanelContainer.SuspendLayout();
             this.playerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.playerImage)).BeginInit();
@@ -73,11 +84,13 @@
             this.targetPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.targetImage)).BeginInit();
             this.containerPanel.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.TabContainer.SuspendLayout();
             this.botTabPage.SuspendLayout();
+            this.botConfigTabPanel.SuspendLayout();
+            this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.updateIntervalUpDown)).BeginInit();
+            this.panel10.SuspendLayout();
+            this.panel11.SuspendLayout();
             this.SuspendLayout();
             // 
             // playerPanelContainer
@@ -214,8 +227,6 @@
             // containerPanel
             // 
             this.containerPanel.BackColor = System.Drawing.Color.White;
-            this.containerPanel.Controls.Add(this.updateIntervalUpDown);
-            this.containerPanel.Controls.Add(this.label6);
             this.containerPanel.Controls.Add(this.statsConfigButton);
             this.containerPanel.Controls.Add(this.statsConfigLabel);
             this.containerPanel.Controls.Add(this.statsSaveButton);
@@ -223,10 +234,7 @@
             this.containerPanel.Controls.Add(this.zoneComboBox);
             this.containerPanel.Controls.Add(this.label4);
             this.containerPanel.Controls.Add(this.label5);
-            this.containerPanel.Controls.Add(this.panel2);
-            this.containerPanel.Controls.Add(this.panel1);
-            this.containerPanel.Controls.Add(this.checkedListBox1);
-            this.containerPanel.Controls.Add(this.windowVisibilityCheckBox);
+            this.containerPanel.Controls.Add(this.alwaysOnTopCheckBox);
             this.containerPanel.Controls.Add(this.playerPanelContainer);
             this.containerPanel.Controls.Add(this.playerButtonAreaConfig);
             this.containerPanel.Controls.Add(this.consoleDebugTextBox);
@@ -237,15 +245,6 @@
             this.containerPanel.Name = "containerPanel";
             this.containerPanel.Size = new System.Drawing.Size(666, 606);
             this.containerPanel.TabIndex = 9;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 415);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(150, 13);
-            this.label6.TabIndex = 26;
-            this.label6.Text = "Intervalo de actualizacion (ms)";
             // 
             // statsConfigButton
             // 
@@ -341,133 +340,23 @@
             this.label5.TabIndex = 17;
             this.label5.Text = "TARGET";
             // 
-            // panel2
+            // alwaysOnTopCheckBox
             // 
-            this.panel2.Controls.Add(this.recoverMPStandTextBox);
-            this.panel2.Controls.Add(this.label3);
-            this.panel2.Controls.Add(this.recoverMPCheckBox);
-            this.panel2.Controls.Add(this.recoverMPSitTextBox);
-            this.panel2.Controls.Add(this.label2);
-            this.panel2.Location = new System.Drawing.Point(8, 249);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(192, 74);
-            this.panel2.TabIndex = 15;
-            // 
-            // recoverMPStandTextBox
-            // 
-            this.recoverMPStandTextBox.Location = new System.Drawing.Point(131, 47);
-            this.recoverMPStandTextBox.MaxLength = 3;
-            this.recoverMPStandTextBox.Name = "recoverMPStandTextBox";
-            this.recoverMPStandTextBox.Size = new System.Drawing.Size(55, 20);
-            this.recoverMPStandTextBox.TabIndex = 15;
-            this.recoverMPStandTextBox.TextChanged += new System.EventHandler(this.RecoverMPStandTextBox_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 50);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(116, 13);
-            this.label3.TabIndex = 14;
-            this.label3.Text = "Pararse cuando MP >=";
-            // 
-            // recoverMPCheckBox
-            // 
-            this.recoverMPCheckBox.AutoSize = true;
-            this.recoverMPCheckBox.Location = new System.Drawing.Point(0, 3);
-            this.recoverMPCheckBox.Name = "recoverMPCheckBox";
-            this.recoverMPCheckBox.Size = new System.Drawing.Size(109, 17);
-            this.recoverMPCheckBox.TabIndex = 11;
-            this.recoverMPCheckBox.Text = "Recargar MP  (%)";
-            this.recoverMPCheckBox.UseVisualStyleBackColor = true;
-            this.recoverMPCheckBox.CheckedChanged += new System.EventHandler(this.RecoverMPCheckBox_CheckedChanged);
-            // 
-            // recoverMPSitTextBox
-            // 
-            this.recoverMPSitTextBox.Location = new System.Drawing.Point(131, 23);
-            this.recoverMPSitTextBox.MaxLength = 3;
-            this.recoverMPSitTextBox.Name = "recoverMPSitTextBox";
-            this.recoverMPSitTextBox.Size = new System.Drawing.Size(55, 20);
-            this.recoverMPSitTextBox.TabIndex = 13;
-            this.recoverMPSitTextBox.TextChanged += new System.EventHandler(this.RecoverMPSitTextBox_TextChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 26);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(122, 13);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "Sentarse cuando MP <=";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.autoPotCheckBox);
-            this.panel1.Controls.Add(this.autoPotHPTextBox);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(8, 188);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(192, 55);
-            this.panel1.TabIndex = 14;
-            // 
-            // autoPotCheckBox
-            // 
-            this.autoPotCheckBox.AutoSize = true;
-            this.autoPotCheckBox.Location = new System.Drawing.Point(0, 3);
-            this.autoPotCheckBox.Name = "autoPotCheckBox";
-            this.autoPotCheckBox.Size = new System.Drawing.Size(102, 17);
-            this.autoPotCheckBox.TabIndex = 11;
-            this.autoPotCheckBox.Text = "Auto HP Pot (%)";
-            this.autoPotCheckBox.UseVisualStyleBackColor = true;
-            this.autoPotCheckBox.CheckedChanged += new System.EventHandler(this.AutoPotCheckBox_CheckedChanged);
-            // 
-            // autoPotHPTextBox
-            // 
-            this.autoPotHPTextBox.Location = new System.Drawing.Point(123, 24);
-            this.autoPotHPTextBox.MaxLength = 3;
-            this.autoPotHPTextBox.Name = "autoPotHPTextBox";
-            this.autoPotHPTextBox.Size = new System.Drawing.Size(55, 20);
-            this.autoPotHPTextBox.TabIndex = 13;
-            this.autoPotHPTextBox.TextChanged += new System.EventHandler(this.AutoPotHPTextBox_TextChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(0, 27);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 13);
-            this.label1.TabIndex = 12;
-            this.label1.Text = "AutoPot cuando HP <=";
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Items.AddRange(new object[] {
-            "Ventana siempre visible",
-            "Auto /attack (para guerreros)",
-            "Usar /nextTarget",
-            "Intentar salir de \"cannot see target\"",
-            "Pausar bot si me baja la CP"});
-            this.checkedListBox1.Location = new System.Drawing.Point(439, 177);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(202, 94);
-            this.checkedListBox1.TabIndex = 10;
-            // 
-            // windowVisibilityCheckBox
-            // 
-            this.windowVisibilityCheckBox.AutoSize = true;
-            this.windowVisibilityCheckBox.Location = new System.Drawing.Point(504, 415);
-            this.windowVisibilityCheckBox.Name = "windowVisibilityCheckBox";
-            this.windowVisibilityCheckBox.Size = new System.Drawing.Size(137, 17);
-            this.windowVisibilityCheckBox.TabIndex = 9;
-            this.windowVisibilityCheckBox.Text = "Ventana siempre visible";
-            this.windowVisibilityCheckBox.UseVisualStyleBackColor = true;
-            this.windowVisibilityCheckBox.CheckedChanged += new System.EventHandler(this.WindowVisibilityCheckBox_CheckedChanged);
+            this.alwaysOnTopCheckBox.AutoSize = true;
+            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(526, 455);
+            this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
+            this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(137, 17);
+            this.alwaysOnTopCheckBox.TabIndex = 9;
+            this.alwaysOnTopCheckBox.Text = "Ventana siempre visible";
+            this.alwaysOnTopCheckBox.UseVisualStyleBackColor = true;
+            this.alwaysOnTopCheckBox.CheckedChanged += new System.EventHandler(this.WindowVisibilityCheckBox_CheckedChanged);
             // 
             // TabContainer
             // 
             this.TabContainer.Controls.Add(this.botTabPage);
+            this.TabContainer.Controls.Add(this.botConfigTabPanel);
             this.TabContainer.Controls.Add(this.skillConfigTabPage);
+            this.TabContainer.Controls.Add(this.targetConfigTabPage);
             this.TabContainer.ItemSize = new System.Drawing.Size(42, 18);
             this.TabContainer.Location = new System.Drawing.Point(5, 5);
             this.TabContainer.Margin = new System.Windows.Forms.Padding(0);
@@ -490,22 +379,142 @@
             this.botTabPage.TabIndex = 0;
             this.botTabPage.Text = "Bot";
             // 
-            // skillConfigTabPage
+            // botConfigTabPanel
             // 
-            this.skillConfigTabPage.BackColor = System.Drawing.Color.DimGray;
-            this.skillConfigTabPage.Location = new System.Drawing.Point(4, 22);
-            this.skillConfigTabPage.Margin = new System.Windows.Forms.Padding(0);
-            this.skillConfigTabPage.Name = "skillConfigTabPage";
-            this.skillConfigTabPage.Size = new System.Drawing.Size(666, 603);
-            this.skillConfigTabPage.TabIndex = 1;
-            this.skillConfigTabPage.Text = "Skill configuracion";
+            this.botConfigTabPanel.Controls.Add(this.panel3);
+            this.botConfigTabPanel.Location = new System.Drawing.Point(4, 22);
+            this.botConfigTabPanel.Name = "botConfigTabPanel";
+            this.botConfigTabPanel.Padding = new System.Windows.Forms.Padding(3);
+            this.botConfigTabPanel.Size = new System.Drawing.Size(666, 603);
+            this.botConfigTabPanel.TabIndex = 2;
+            this.botConfigTabPanel.Text = "Configuracion del bot";
+            this.botConfigTabPanel.UseVisualStyleBackColor = true;
+            // 
+            // panel3
+            // 
+            this.panel3.BackColor = System.Drawing.Color.White;
+            this.panel3.Controls.Add(this.selectedWindowName);
+            this.panel3.Controls.Add(this.button1);
+            this.panel3.Controls.Add(this.userNameTextBox);
+            this.panel3.Controls.Add(this.addUserButton);
+            this.panel3.Controls.Add(this.separator);
+            this.panel3.Controls.Add(this.configLoadButton);
+            this.panel3.Controls.Add(this.configSaveButton);
+            this.panel3.Controls.Add(this.configurationLoadLabel);
+            this.panel3.Controls.Add(this.updateIntervalUpDown);
+            this.panel3.Controls.Add(this.label6);
+            this.panel3.Controls.Add(this.panel10);
+            this.panel3.Controls.Add(this.panel11);
+            this.panel3.Controls.Add(this.checkedListBox2);
+            this.panel3.Location = new System.Drawing.Point(0, -2);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(666, 606);
+            this.panel3.TabIndex = 10;
+            // 
+            // button1
+            // 
+            this.button1.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.button1.FlatAppearance.BorderSize = 3;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Location = new System.Drawing.Point(461, 8);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(185, 41);
+            this.button1.TabIndex = 37;
+            this.button1.Text = "Seleccionar Ventana L2";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.button1_MouseDown);
+            this.button1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.button1_MouseUp);
+            // 
+            // userNameTextBox
+            // 
+            this.userNameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.userNameTextBox.Font = new System.Drawing.Font("Perpetua Titling MT", 12F, System.Drawing.FontStyle.Bold);
+            this.userNameTextBox.ForeColor = System.Drawing.Color.Coral;
+            this.userNameTextBox.Location = new System.Drawing.Point(143, 17);
+            this.userNameTextBox.Name = "userNameTextBox";
+            this.userNameTextBox.Size = new System.Drawing.Size(280, 20);
+            this.userNameTextBox.TabIndex = 36;
+            this.userNameTextBox.Text = "NINGUNO";
+            this.userNameTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.userNameTextBox_KeyDown);
+            // 
+            // addUserButton
+            // 
+            this.addUserButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(244)))), ((int)(((byte)(235)))));
+            this.addUserButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(70)))), ((int)(((byte)(98)))));
+            this.addUserButton.FlatAppearance.BorderSize = 4;
+            this.addUserButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(70)))), ((int)(((byte)(58)))));
+            this.addUserButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(70)))), ((int)(((byte)(158)))));
+            this.addUserButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.addUserButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.addUserButton.ForeColor = System.Drawing.Color.Black;
+            this.addUserButton.Location = new System.Drawing.Point(20, 64);
+            this.addUserButton.Name = "addUserButton";
+            this.addUserButton.Size = new System.Drawing.Size(185, 37);
+            this.addUserButton.TabIndex = 35;
+            this.addUserButton.Text = "Agregar nuevo usuario";
+            this.addUserButton.UseVisualStyleBackColor = false;
+            this.addUserButton.Click += new System.EventHandler(this.addUserButton_Click);
+            // 
+            // separator
+            // 
+            this.separator.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.separator.Location = new System.Drawing.Point(20, 116);
+            this.separator.Name = "separator";
+            this.separator.Size = new System.Drawing.Size(626, 2);
+            this.separator.TabIndex = 34;
+            // 
+            // configLoadButton
+            // 
+            this.configLoadButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(244)))), ((int)(((byte)(235)))));
+            this.configLoadButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(130)))), ((int)(((byte)(138)))), ((int)(((byte)(70)))));
+            this.configLoadButton.FlatAppearance.BorderSize = 4;
+            this.configLoadButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(188)))), ((int)(((byte)(149)))));
+            this.configLoadButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(133)))), ((int)(((byte)(158)))), ((int)(((byte)(103)))));
+            this.configLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.configLoadButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.configLoadButton.ForeColor = System.Drawing.Color.Black;
+            this.configLoadButton.Location = new System.Drawing.Point(461, 64);
+            this.configLoadButton.Name = "configLoadButton";
+            this.configLoadButton.Size = new System.Drawing.Size(185, 37);
+            this.configLoadButton.TabIndex = 32;
+            this.configLoadButton.Text = "Cargar configuracion";
+            this.configLoadButton.UseVisualStyleBackColor = false;
+            this.configLoadButton.Click += new System.EventHandler(this.configLoadButton_Click);
+            // 
+            // configSaveButton
+            // 
+            this.configSaveButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(244)))), ((int)(((byte)(235)))));
+            this.configSaveButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(138)))), ((int)(((byte)(70)))));
+            this.configSaveButton.FlatAppearance.BorderSize = 4;
+            this.configSaveButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(188)))), ((int)(((byte)(149)))));
+            this.configSaveButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(158)))), ((int)(((byte)(103)))));
+            this.configSaveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.configSaveButton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.configSaveButton.ForeColor = System.Drawing.Color.Black;
+            this.configSaveButton.Location = new System.Drawing.Point(239, 64);
+            this.configSaveButton.Name = "configSaveButton";
+            this.configSaveButton.Size = new System.Drawing.Size(185, 37);
+            this.configSaveButton.TabIndex = 31;
+            this.configSaveButton.Text = "Guardar configuracion";
+            this.configSaveButton.UseVisualStyleBackColor = false;
+            this.configSaveButton.Click += new System.EventHandler(this.configSaveButton_Click);
+            // 
+            // configurationLoadLabel
+            // 
+            this.configurationLoadLabel.AutoSize = true;
+            this.configurationLoadLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.configurationLoadLabel.Location = new System.Drawing.Point(6, 14);
+            this.configurationLoadLabel.Name = "configurationLoadLabel";
+            this.configurationLoadLabel.Size = new System.Drawing.Size(133, 24);
+            this.configurationLoadLabel.TabIndex = 30;
+            this.configurationLoadLabel.Text = "Usuario actual:";
             // 
             // updateIntervalUpDown
             // 
             this.updateIntervalUpDown.BackColor = System.Drawing.Color.White;
             this.updateIntervalUpDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.updateIntervalUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.updateIntervalUpDown.Location = new System.Drawing.Point(11, 432);
+            this.updateIntervalUpDown.Location = new System.Drawing.Point(5, 580);
             this.updateIntervalUpDown.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -518,14 +527,161 @@
             0});
             this.updateIntervalUpDown.Name = "updateIntervalUpDown";
             this.updateIntervalUpDown.Size = new System.Drawing.Size(142, 23);
-            this.updateIntervalUpDown.TabIndex = 27;
+            this.updateIntervalUpDown.TabIndex = 29;
             this.updateIntervalUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.updateIntervalUpDown.Value = new decimal(new int[] {
-            100,
+            700,
             0,
             0,
             0});
-            this.updateIntervalUpDown.ValueChanged += new System.EventHandler(this.UpdateIntervalUpDown_ValueChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(2, 563);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(150, 13);
+            this.label6.TabIndex = 28;
+            this.label6.Text = "Intervalo de actualizacion (ms)";
+            // 
+            // panel10
+            // 
+            this.panel10.Controls.Add(this.recoverMPStandTextBox);
+            this.panel10.Controls.Add(this.label11);
+            this.panel10.Controls.Add(this.recoverMPCheckBox);
+            this.panel10.Controls.Add(this.recoverMPSitTextBox);
+            this.panel10.Controls.Add(this.label12);
+            this.panel10.Location = new System.Drawing.Point(6, 190);
+            this.panel10.Name = "panel10";
+            this.panel10.Size = new System.Drawing.Size(192, 74);
+            this.panel10.TabIndex = 15;
+            // 
+            // recoverMPStandTextBox
+            // 
+            this.recoverMPStandTextBox.Location = new System.Drawing.Point(131, 47);
+            this.recoverMPStandTextBox.MaxLength = 3;
+            this.recoverMPStandTextBox.Name = "recoverMPStandTextBox";
+            this.recoverMPStandTextBox.Size = new System.Drawing.Size(55, 20);
+            this.recoverMPStandTextBox.TabIndex = 15;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 50);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(116, 13);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Pararse cuando MP >=";
+            // 
+            // recoverMPCheckBox
+            // 
+            this.recoverMPCheckBox.AutoSize = true;
+            this.recoverMPCheckBox.Location = new System.Drawing.Point(3, 3);
+            this.recoverMPCheckBox.Name = "recoverMPCheckBox";
+            this.recoverMPCheckBox.Size = new System.Drawing.Size(109, 17);
+            this.recoverMPCheckBox.TabIndex = 11;
+            this.recoverMPCheckBox.Text = "Recargar MP  (%)";
+            this.recoverMPCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // recoverMPSitTextBox
+            // 
+            this.recoverMPSitTextBox.Location = new System.Drawing.Point(131, 23);
+            this.recoverMPSitTextBox.MaxLength = 3;
+            this.recoverMPSitTextBox.Name = "recoverMPSitTextBox";
+            this.recoverMPSitTextBox.Size = new System.Drawing.Size(55, 20);
+            this.recoverMPSitTextBox.TabIndex = 13;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 26);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(122, 13);
+            this.label12.TabIndex = 12;
+            this.label12.Text = "Sentarse cuando MP <=";
+            // 
+            // panel11
+            // 
+            this.panel11.Controls.Add(this.autoPotCheckBox);
+            this.panel11.Controls.Add(this.autoPotTextBox);
+            this.panel11.Controls.Add(this.label13);
+            this.panel11.Location = new System.Drawing.Point(6, 129);
+            this.panel11.Name = "panel11";
+            this.panel11.Size = new System.Drawing.Size(192, 55);
+            this.panel11.TabIndex = 14;
+            // 
+            // autoPotCheckBox
+            // 
+            this.autoPotCheckBox.AutoSize = true;
+            this.autoPotCheckBox.Location = new System.Drawing.Point(3, 4);
+            this.autoPotCheckBox.Name = "autoPotCheckBox";
+            this.autoPotCheckBox.Size = new System.Drawing.Size(102, 17);
+            this.autoPotCheckBox.TabIndex = 11;
+            this.autoPotCheckBox.Text = "Auto HP Pot (%)";
+            this.autoPotCheckBox.UseVisualStyleBackColor = true;
+            this.autoPotCheckBox.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
+            // 
+            // autoPotTextBox
+            // 
+            this.autoPotTextBox.Location = new System.Drawing.Point(123, 24);
+            this.autoPotTextBox.MaxLength = 3;
+            this.autoPotTextBox.Name = "autoPotTextBox";
+            this.autoPotTextBox.Size = new System.Drawing.Size(55, 20);
+            this.autoPotTextBox.TabIndex = 13;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(0, 27);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(117, 13);
+            this.label13.TabIndex = 12;
+            this.label13.Text = "AutoPot cuando HP <=";
+            // 
+            // checkedListBox2
+            // 
+            this.checkedListBox2.Enabled = false;
+            this.checkedListBox2.FormattingEnabled = true;
+            this.checkedListBox2.Items.AddRange(new object[] {
+            "Ventana siempre visible",
+            "Auto /attack (para guerreros)",
+            "Usar /nextTarget",
+            "Intentar salir de \"cannot see target\"",
+            "Pausar bot si me baja la CP"});
+            this.checkedListBox2.Location = new System.Drawing.Point(458, 153);
+            this.checkedListBox2.Name = "checkedListBox2";
+            this.checkedListBox2.Size = new System.Drawing.Size(202, 94);
+            this.checkedListBox2.TabIndex = 10;
+            // 
+            // skillConfigTabPage
+            // 
+            this.skillConfigTabPage.BackColor = System.Drawing.Color.DimGray;
+            this.skillConfigTabPage.Location = new System.Drawing.Point(4, 22);
+            this.skillConfigTabPage.Margin = new System.Windows.Forms.Padding(0);
+            this.skillConfigTabPage.Name = "skillConfigTabPage";
+            this.skillConfigTabPage.Size = new System.Drawing.Size(666, 603);
+            this.skillConfigTabPage.TabIndex = 1;
+            this.skillConfigTabPage.Text = "Skill configuracion";
+            // 
+            // selectedWindowName
+            // 
+            this.selectedWindowName.AutoSize = true;
+            this.selectedWindowName.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
+            this.selectedWindowName.Location = new System.Drawing.Point(315, 14);
+            this.selectedWindowName.Name = "selectedWindowName";
+            this.selectedWindowName.Size = new System.Drawing.Size(109, 24);
+            this.selectedWindowName.TabIndex = 38;
+            this.selectedWindowName.Text = "No Window";
+            // 
+            // targetConfigTabPage
+            // 
+            this.targetConfigTabPage.Location = new System.Drawing.Point(4, 22);
+            this.targetConfigTabPage.Name = "targetConfigTabPage";
+            this.targetConfigTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.targetConfigTabPage.Size = new System.Drawing.Size(666, 603);
+            this.targetConfigTabPage.TabIndex = 3;
+            this.targetConfigTabPage.Text = "Target Configuration";
+            this.targetConfigTabPage.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -550,13 +706,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.targetImage)).EndInit();
             this.containerPanel.ResumeLayout(false);
             this.containerPanel.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.TabContainer.ResumeLayout(false);
             this.botTabPage.ResumeLayout(false);
+            this.botConfigTabPanel.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.updateIntervalUpDown)).EndInit();
+            this.panel10.ResumeLayout(false);
+            this.panel10.PerformLayout();
+            this.panel11.ResumeLayout(false);
+            this.panel11.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -570,18 +729,7 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.TextBox consoleDebugTextBox;
         private System.Windows.Forms.Panel containerPanel;
-        private System.Windows.Forms.CheckBox windowVisibilityCheckBox;
-        private System.Windows.Forms.CheckBox autoPotCheckBox;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.CheckBox recoverMPCheckBox;
-        private System.Windows.Forms.TextBox recoverMPSitTextBox;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TextBox autoPotHPTextBox;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox recoverMPStandTextBox;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox alwaysOnTopCheckBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel playerStatsMarker;
@@ -598,8 +746,30 @@
         private System.Windows.Forms.TabControl TabContainer;
         private System.Windows.Forms.TabPage botTabPage;
         private System.Windows.Forms.TabPage skillConfigTabPage;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TabPage botConfigTabPanel;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Panel panel10;
+        private System.Windows.Forms.TextBox recoverMPStandTextBox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox recoverMPCheckBox;
+        private System.Windows.Forms.TextBox recoverMPSitTextBox;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Panel panel11;
+        private System.Windows.Forms.CheckBox autoPotCheckBox;
+        private System.Windows.Forms.TextBox autoPotTextBox;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckedListBox checkedListBox2;
         private System.Windows.Forms.NumericUpDown updateIntervalUpDown;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button configLoadButton;
+        private System.Windows.Forms.Button configSaveButton;
+        private System.Windows.Forms.Label configurationLoadLabel;
+        private System.Windows.Forms.Label separator;
+        private System.Windows.Forms.TextBox userNameTextBox;
+        private System.Windows.Forms.Button addUserButton;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label selectedWindowName;
+        private System.Windows.Forms.TabPage targetConfigTabPage;
     }
 }
 

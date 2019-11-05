@@ -77,8 +77,5 @@
     <Setting Name="TARGET_HP_BARSTART_INITIALIZED" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="KYU_FILE_PATH" Type="System.String" Scope="User">
-      <Value Profile="(Default)">""</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

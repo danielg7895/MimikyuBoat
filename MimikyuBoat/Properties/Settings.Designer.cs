@@ -322,5 +322,17 @@ namespace MimikyuBoat.Properties {
                 this["TARGET_HP_BARSTART_INITIALIZED"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\"")]
+        public string KYU_FILE_PATH {
+            get {
+                return ((string)(this["KYU_FILE_PATH"]));
+            }
+            set {
+                this["KYU_FILE_PATH"] = value;
+            }
+        }
     }
 }

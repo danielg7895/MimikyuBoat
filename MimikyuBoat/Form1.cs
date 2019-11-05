@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
 
 namespace MimikyuBoat
 {
@@ -21,16 +22,21 @@ namespace MimikyuBoat
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        [DllImport("User32.dll")]
+        public static extern IntPtr GetDC(IntPtr hwnd);
+
+        [DllImport("User32.dll")]
+        public static extern void ReleaseDC(IntPtr hwnd, IntPtr dc);
         #endregion 
 
-        public volatile bool playerRegionLoaded = false;
-        public volatile bool targetRegionLoaded = false;
         public volatile bool enterPressed = false;
         [ThreadStatic]
         public static readonly bool IsMainThread = true;
 
         BotConfiguration botConfiguration;
-        MimikyuBoat mimikyuBoat;
+        Bot bot;
+        Utils utils;
         ImageManager imageManager;
         Player player;
         Target target;
@@ -58,30 +64,97 @@ namespace MimikyuBoat
                 return targetStatsMarker.Top;
             }
         }
+        public bool autoPotCheckBoxValue
+        {
+            get
+            {
+                return autoPotCheckBox.Checked;
+            }
+        }
+        public int autoPotTextBoxValue
+        {
+            get
+            {
+                try
+                {
+                    return int.Parse(autoPotTextBox.Text);
+                } catch (Exception)
+                {
+                    return 0;
+                }
+            }
+        }
+        public bool recoverMPCheckBoxValue
+        {
+            get
+            {
+                return recoverMPCheckBox.Checked;
+            }
+        }
+        public int recoverMPSitTextBoxValue
+        {
+            get
+            {
+                try
+                {
+                    return int.Parse(recoverMPSitTextBox.Text);
+                } catch(Exception)
+                {
+                    return 0;
+                }
+            }
+        }
+        public int recoverMPStandTextBoxValue
+        {
+            get
+            {
+                try
+                {
+                    return int.Parse(recoverMPStandTextBox.Text);
+                }
+                catch (Exception)
+                {
+                    return 0;
+                }
+            }
+        }
+        public int updateIntervalValue
+        {
+            get
+            {
+                return (int)updateIntervalUpDown.Value;
+            }
+        }
+        public string userNameTextBoxValue
+        {
+            get
+            {
+                return userNameTextBox.Text;
+            }
+        }
+        public bool alwaysOnTopValue
+        {
+            get
+            {
+                return alwaysOnTopCheckBox.Checked;
+            }
+        }
 
         public Form1()
         {
             InitializeComponent();
             this.Shown += new System.EventHandler(this.Form1_Shown);
             //Properties.Settings.Default.Reset();
-
         }
-
-        #region referencias
-        [DllImport("User32.dll")]
-        public static extern IntPtr GetDC(IntPtr hwnd);
-        [DllImport("User32.dll")]
-        public static extern void ReleaseDC(IntPtr hwnd, IntPtr dc);
-        #endregion
 
         private void Form1_Shown(object sender, EventArgs e)
         {
-            mimikyuBoat = new MimikyuBoat(this);
+            utils = new Utils();
+            bot = new Bot();
             botConfiguration = new BotConfiguration(this);
             imageManager = ImageManager.Instance;
             player = Player.Instance;
             target = Target.Instance;
-
 
             playerStatsMarker.Height = 1;
             targetStatsMarker.Height = 1;
@@ -89,86 +162,58 @@ namespace MimikyuBoat
             targetStatsMarker.Hide();
             statsConfigButton.Enabled = false;
 
-            ConsoleWrite("Cargando configuracion.");
-            LOAD_SETTINGS();
-            ConsoleWrite("Configuracion cargada.");
+            botConfiguration.ConfigLoaded += ConfigWasLoaded;
+            botConfiguration.ConfigSaved += ConfigWasSaved;
 
-            // threads
+            if (File.Exists("default.kyu"))
+            {
+                ConsoleWrite("Cargando configuracion.");
+                BotSettings.Load();
+                botConfiguration.UPDATE_APP_DATA();
+                ConsoleWrite("Configuracion cargada.");
 
-            Thread updateThread = new Thread(new ThreadStart(UpdateUI));
-            updateThread.Start();
+                Thread updateThread = new Thread(new ThreadStart(UpdateUI));
+                updateThread.Start();
+            } 
+            else
+            {
+                ConsoleWrite("No existe el archivo de configuracion por defecto default.kyu, intentando generar uno...");
+                try
+                {
+                    string direc = Directory.GetCurrentDirectory() + "\\" + "default.kyu";
+                    Console.WriteLine(direc);
+                    using (File.Create(direc));
+                    botConfiguration.GENERATE_DEFAULT_CONFIG_FILE();
+                    BotSettings.Load();
+                    ConsoleWrite("Archivo generado correctamente.");
+                }
+                catch (Exception err)
+                {
+                    MessageBox.Show("ERROR: Hubo un problema al crear el archivo por defecto, error original" + err.Message);
+                }
+            }
         }
 
-        public void LOAD_SETTINGS()
+        void ConfigWasLoaded()
         {
-            // intento cargar las configuraciones previas guardadas
-
-            // Seteo de variables NO forms
-            //System.Configuration.SettingsBase.this[string].get returned null
-            player.cpBarStart = BotSettings.PLAYER_CP_BARSTART;
-            player.hpBarStart = BotSettings.PLAYER_HP_BARSTART;
-            player.mpBarStart = BotSettings.PLAYER_MP_BARSTART;
-            player.cpRow = BotSettings.PLAYER_CP_ZONE;
-            player.hpRow = BotSettings.PLAYER_HP_ZONE;
-            player.mpRow = BotSettings.PLAYER_MP_ZONE;
-            target.hpBarStart = BotSettings.TARGET_HP_BARSTART;
-            target.hpRow = BotSettings.TARGET_HP_ZONE;
-
-            botConfiguration.playerRect = BotSettings.PLAYER_CONFIGURATION_AREA;
-            if (!botConfiguration.playerRect.IsEmpty) playerRegionLoaded = true;
-
-            botConfiguration.targetRect = BotSettings.TARGET_CONFIGURATION_AREA;
-            if (!botConfiguration.targetRect.IsEmpty) targetRegionLoaded = true;
-
-            // En este caso guardo directamente en botsettings en vez de una variable clonada de una clase.
-            BotSettings.PLAYER_CP_BARSTART_INITIALIZED = (bool)Properties.Settings.Default["PLAYER_CP_BARSTART_INITIALIZED"];
-            BotSettings.PLAYER_HP_BARSTART_INITIALIZED = (bool)Properties.Settings.Default["PLAYER_HP_BARSTART_INITIALIZED"];
-            BotSettings.PLAYER_MP_BARSTART_INITIALIZED = (bool)Properties.Settings.Default["PLAYER_MP_BARSTART_INITIALIZED"];
-            BotSettings.TARGET_HP_BARSTART_INITIALIZED = (bool)Properties.Settings.Default["TARGET_HP_BARSTART_INITIALIZED"];
-
-
-            // Seteo de variables Form
+            // Metodo llamado una vez que la configuracion fue cargada.
             autoPotCheckBox.Checked = BotSettings.AUTO_POT_ENABLED;
-            autoPotHPTextBox.Text = BotSettings.AUTO_POT_PERCENTAGE.ToString();
+            autoPotTextBox.Text = BotSettings.AUTO_POT_PERCENTAGE.ToString();
 
             recoverMPCheckBox.Checked = BotSettings.RECOVER_MP_ENABLED;
             recoverMPSitTextBox.Text = BotSettings.MP_SIT_PERCENTAGE.ToString();
             recoverMPStandTextBox.Text = BotSettings.MP_STAND_PERCENTAGE.ToString();
 
             updateIntervalUpDown.Value = BotSettings.UPDATE_INTERVAL;
+            playerImage.Image = null;
+            targetImage.Image = null;
         }
 
-        public void SAVE_SETTINGS()
+        void ConfigWasSaved()
         {
-            // Por ahora guardo todo siempre, en un futuro ver como mejorar esto.
-
-            Properties.Settings.Default["PLAYER_CP_BARSTART"] = player.cpBarStart;
-            Properties.Settings.Default["PLAYER_HP_BARSTART"] = player.hpBarStart;
-            Properties.Settings.Default["PLAYER_MP_BARSTART"] = player.mpBarStart;
-            Properties.Settings.Default["TARGET_HP_BARSTART"] = target.hpBarStart;
-
-            Properties.Settings.Default["PLAYER_CP_ZONE"] = player.cpRow;
-            Properties.Settings.Default["PLAYER_HP_ZONE"] = player.hpRow;
-            Properties.Settings.Default["PLAYER_MP_ZONE"] = player.mpRow;
-            Properties.Settings.Default["TARGET_HP_ZONE"] = target.hpRow;
-
-            Properties.Settings.Default["PLAYER_CONFIGURATION_AREA"] = botConfiguration.playerRect;
-            Properties.Settings.Default["TARGET_CONFIGURATION_AREA"] = botConfiguration.targetRect;
-
-            Properties.Settings.Default["AUTO_POT_ENABLED"] = autoPotCheckBox.Checked;
-            Properties.Settings.Default["AUTO_POT_PERCENTAGE"] = autoPotHPTextBox.Text == "" ? 0 : int.Parse(autoPotHPTextBox.Text);
-            Properties.Settings.Default["RECOVER_MP_ENABLED"] = recoverMPCheckBox.Checked;
-            Properties.Settings.Default["MP_SIT_PERCENTAGE"] = recoverMPSitTextBox.Text == "" ? 0 : int.Parse(recoverMPSitTextBox.Text);
-            Properties.Settings.Default["MP_STAND_PERCENTAGE"] = recoverMPStandTextBox.Text == "" ? 0 : int.Parse(recoverMPStandTextBox.Text);
-
-            Properties.Settings.Default["UPDATE_INTERVAL"] = (int)updateIntervalUpDown.Value;
-            Properties.Settings.Default["PLAYER_CP_BARSTART_INITIALIZED"] = BotSettings.PLAYER_CP_BARSTART_INITIALIZED;
-            Properties.Settings.Default["PLAYER_HP_BARSTART_INITIALIZED"] = BotSettings.PLAYER_HP_BARSTART_INITIALIZED;
-            Properties.Settings.Default["PLAYER_MP_BARSTART_INITIALIZED"] = BotSettings.PLAYER_MP_BARSTART_INITIALIZED;
-            Properties.Settings.Default["TARGET_HP_BARSTART_INITIALIZED"] = BotSettings.TARGET_HP_BARSTART_INITIALIZED;
-
-            Properties.Settings.Default.Save();
+            // Metodo llamado una vez que la configuracion fue guardada.
         }
+
 
         public void UpdateUI()
         {
@@ -182,12 +227,12 @@ namespace MimikyuBoat
             {
                 counter += BotSettings.UPDATE_INTERVAL;
 
-                if (this.playerRegionLoaded)
+                if (botConfiguration.playerRegionLoaded)
                 {
                     // guardo la imagen del player
                     Bitmap bmp = imageManager.GetImageFromRect(botConfiguration.playerRect);
 
-                    if ((System.IO.File.Exists(player.imagePath)))
+                    if (File.Exists(player.imagePath))
                     {
                         while (true)
                         {
@@ -212,7 +257,7 @@ namespace MimikyuBoat
                     });
                 }
 
-                if (targetRegionLoaded)
+                if (botConfiguration.targetRegionLoaded)
                 {
                     // guardo la imagen del target
                     Bitmap bmp = imageManager.GetImageFromRect(botConfiguration.targetRect);
@@ -330,18 +375,18 @@ namespace MimikyuBoat
         private void WindowVisibilityCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = !this.TopMost;
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void StartButton_Click(object sender, EventArgs e)
         {
             ChangeFormColor(Color.Red);
             // Verifico si estan cargadas las imagenes del player y del target
-            if (!playerRegionLoaded)
+            if (!botConfiguration.playerRegionLoaded)
             {
                 botConfiguration.StartPlayerAreaConfiguration();
             }
-            if (!targetRegionLoaded)
+            if (!botConfiguration.targetRegionLoaded)
             {
                 botConfiguration.StartTargetAreaConfiguration();
             }
@@ -351,24 +396,24 @@ namespace MimikyuBoat
                 return;
             } 
 
-            if (!mimikyuBoat.botEnabled)
+            if (!bot.botEnabled)
             {
                 ChangeFormColor(Color.Green);
-                Thread thr = new Thread(new ThreadStart(mimikyuBoat.Start));
+                Thread thr = new Thread(new ThreadStart(bot.MainLoop));
                 thr.Start();
                 startButton.Text = "Pausar";
             }
-            else if (mimikyuBoat.botEnabled && mimikyuBoat.paused == false)
+            else if (bot.botEnabled && bot.paused == false)
             {
                 ChangeFormColor(Color.AliceBlue);
-                mimikyuBoat.paused = true;
+                bot.paused = true;
                 startButton.Text = "Continuar";
             }
             else
             {
                 ChangeFormColor(Color.Green);
                 startButton.Text = "Pausar";
-                mimikyuBoat.paused = false;
+                bot.paused = false;
             }
         }
 
@@ -425,7 +470,7 @@ namespace MimikyuBoat
             // llamo al metodo encargado de configurar los limites.
             botConfiguration.ConfigureBarBounds();
 
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void StatsCancelButton_Click(object sender, EventArgs e)
@@ -450,12 +495,12 @@ namespace MimikyuBoat
         {
             if (autoPotCheckBox.Checked)
             {
-                autoPotHPTextBox.Enabled = true;
+                autoPotTextBox.Enabled = true;
             } else
             {
-                autoPotHPTextBox.Enabled = false;
+                autoPotTextBox.Enabled = false;
             }
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void RecoverMPCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -467,28 +512,28 @@ namespace MimikyuBoat
             {
                 recoverMPSitTextBox.Enabled = false;
             }
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void AutoPotHPTextBox_TextChanged(object sender, EventArgs e)
         {
 
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void RecoverMPSitTextBox_TextChanged(object sender, EventArgs e)
         {
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void RecoverMPStandTextBox_TextChanged(object sender, EventArgs e)
         {
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void UpdateIntervalUpDown_ValueChanged(object sender, EventArgs e)
         {
-            SAVE_SETTINGS();
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         #endregion
@@ -508,6 +553,136 @@ namespace MimikyuBoat
                     f.Show();
                 }
             }
+            else if (e.TabPage.Name == targetConfigTabPage.Name)
+            {
+                if (targetConfigTabPage.Controls.Count == 0)
+                {
+                    Form f = new TargetConfiguration();
+                    f.TopLevel = false;
+                    f.FormBorderStyle = FormBorderStyle.None;
+                    f.Dock = DockStyle.Fill;
+                    targetConfigTabPage.Controls.Add(f);
+                    f.Show();
+                }
+            }
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void configLoadButton_Click(object sender, EventArgs e)
+        {
+            // cargo la configuracion del usuario.
+            botConfiguration.LOAD_USER_SETTINGS();
+
+        }
+
+        private void configSaveButton_Click(object sender, EventArgs e)
+        {
+            // Guardo la configuracion actual del usuario.
+
+            botConfiguration.SAVE_USER_SETTINGS();
+        }
+
+        private void addUserButton_Click(object sender, EventArgs e)
+        {
+            // Creo un nuevo usuario de guardado.
+
+            botConfiguration.ADD_USER_SETTINGS();
+
+        }
+
+        private void userNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        volatile bool selectingWindowMode = false;
+
+        private void button1_MouseDown(object sender, MouseEventArgs e)
+        {
+            Cursor.Current = Cursors.Cross;
+            selectingWindowMode = true;
+            Thread th = new Thread(new ThreadStart(DrawOnWindow));
+            th.Start();
+        }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr WindowFromPoint(Point point);
+        [DllImport("User32.dll")]
+        static extern bool GetWindowRect(IntPtr hWnd, ref RECT rec);
+        [DllImport("User32.dll")]
+        static extern bool InvalidateRect(IntPtr hWnd, IntPtr a, bool bErase);
+
+        void DrawOnWindow()
+        {
+            RECT rect = new RECT();
+            IntPtr hwnd = IntPtr.Zero;
+
+            while (true)
+            {
+                Thread.Sleep(100);
+
+                if (selectingWindowMode)
+                {
+                    Point cursorPos = Cursor.Position;
+                    if (hwnd == WindowFromPoint(cursorPos)) continue;
+                    Invoke((MethodInvoker)delegate
+                    {
+                        InvalidateRect(hwnd, IntPtr.Zero, true); // invalido draws previos asi bien piola
+                        hwnd = WindowFromPoint(cursorPos);
+                        selectedWindowName.Text = GetWindowTitle(hwnd);
+                    });
+
+                    Debug.WriteLine(hwnd);
+
+                    Graphics graphics = Graphics.FromHwnd(hwnd);
+                    Pen pen = new Pen(Color.BlueViolet, 8);
+                    rect = new RECT();
+                    GetWindowRect(hwnd, ref rect);
+                    int width = Math.Abs(rect.Right - rect.Left);
+                    int height = Math.Abs(rect.Bottom - rect.Top);
+                    graphics.DrawRectangle(pen, 0, 0, width, height);
+
+                }
+                else break;
+            }
+        }
+
+        public struct RECT
+        {
+            public int Left;       
+            public int Top;        
+            public int Right;      
+            public int Bottom;     
+        }
+
+
+        private void button1_MouseUp(object sender, MouseEventArgs e)
+        {
+            InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
+            IntPtr hwnd = WindowFromPoint(Cursor.Position);
+            BotSettings.L2_PROCESS_HANDLE = hwnd;
+
+            var windowName = GetWindowTitle(hwnd);
+            selectedWindowName.Text = windowName;
+            selectingWindowMode = false;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern int GetWindowTextLength(IntPtr hWnd);
+
+        public static string GetWindowTitle(IntPtr hWnd)
+        {
+            var length = GetWindowTextLength(hWnd) + 1;
+            var title = new StringBuilder(length);
+            GetWindowText(hWnd, title, length);
+            return title.ToString();
         }
 
     }
