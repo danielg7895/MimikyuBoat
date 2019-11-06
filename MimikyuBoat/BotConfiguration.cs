@@ -150,9 +150,9 @@ namespace MimikyuBoat
             try
             {
 
-                player.cpBarStart = BotSettings.PLAYER_CP_BARSTART;
-                player.hpBarStart = BotSettings.PLAYER_HP_BARSTART;
-                player.mpBarStart = BotSettings.PLAYER_MP_BARSTART;
+                //player.cpBarStart = BotSettings.PLAYER_CP_BARSTART;
+                //player.hpBarStart = BotSettings.PLAYER_HP_BARSTART;
+                //player.mpBarStart = BotSettings.PLAYER_MP_BARSTART;
                 player.cpRow =      BotSettings.PLAYER_CP_ZONE;
                 player.hpRow =      BotSettings.PLAYER_HP_ZONE;
                 player.mpRow =      BotSettings.PLAYER_MP_ZONE;

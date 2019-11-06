@@ -54,6 +54,7 @@
             this.botTabPage = new System.Windows.Forms.TabPage();
             this.botConfigTabPanel = new System.Windows.Forms.TabPage();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.selectedWindowName = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.userNameTextBox = new System.Windows.Forms.TextBox();
             this.addUserButton = new System.Windows.Forms.Button();
@@ -75,7 +76,6 @@
             this.label13 = new System.Windows.Forms.Label();
             this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
             this.skillConfigTabPage = new System.Windows.Forms.TabPage();
-            this.selectedWindowName = new System.Windows.Forms.Label();
             this.targetConfigTabPage = new System.Windows.Forms.TabPage();
             this.playerPanelContainer.SuspendLayout();
             this.playerPanel.SuspendLayout();
@@ -411,6 +411,16 @@
             this.panel3.Size = new System.Drawing.Size(666, 606);
             this.panel3.TabIndex = 10;
             // 
+            // selectedWindowName
+            // 
+            this.selectedWindowName.AutoSize = true;
+            this.selectedWindowName.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
+            this.selectedWindowName.Location = new System.Drawing.Point(315, 14);
+            this.selectedWindowName.Name = "selectedWindowName";
+            this.selectedWindowName.Size = new System.Drawing.Size(109, 24);
+            this.selectedWindowName.TabIndex = 38;
+            this.selectedWindowName.Text = "No Window";
+            // 
             // button1
             // 
             this.button1.FlatAppearance.BorderColor = System.Drawing.Color.Black;
@@ -663,16 +673,6 @@
             this.skillConfigTabPage.TabIndex = 1;
             this.skillConfigTabPage.Text = "Skill configuracion";
             // 
-            // selectedWindowName
-            // 
-            this.selectedWindowName.AutoSize = true;
-            this.selectedWindowName.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F);
-            this.selectedWindowName.Location = new System.Drawing.Point(315, 14);
-            this.selectedWindowName.Name = "selectedWindowName";
-            this.selectedWindowName.Size = new System.Drawing.Size(109, 24);
-            this.selectedWindowName.TabIndex = 38;
-            this.selectedWindowName.Text = "No Window";
-            // 
             // targetConfigTabPage
             // 
             this.targetConfigTabPage.Location = new System.Drawing.Point(4, 22);
@@ -695,7 +695,7 @@
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Name = "Form1";
-            this.Text = "MimikyuBoat";
+            this.Text = "Shizui";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.playerPanelContainer.ResumeLayout(false);

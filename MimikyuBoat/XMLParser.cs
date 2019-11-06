@@ -9,16 +9,13 @@ using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
 using System.Drawing;
+using System.Xml;
 
 namespace MimikyuBoat
 {
     class XMLParser
     {
 
-        static XMLParser()
-        {
-            Debug.WriteLine("xmlparser statico cargado");
-        }
         public void SET_VALUE_TO_KYU(string attributeName, object dataValue)
         {
             string kyuFilePath = BotSettings.KYU_FILE_PATH;
@@ -33,16 +30,23 @@ namespace MimikyuBoat
             {
                 // si no hay nada en el archivo creo el primer elemento e inicializo el xml
                 doc = new XDocument(new XElement("settings"));
-            } else
+            }
+            else
             {
                 // sino supongo que hay data xml en el archivo e intento cargarla. esta funcion falla si 
                 // hay data en el archivo pero esa data no es la esperada.
                 doc = XDocument.Load(kyuFilePath);
             }
 
+            StringWriter sw = new StringWriter();
+            XmlWriter xmlWriter = XmlWriter.Create(sw);
+            XmlSerializer xmlSerializer = new XmlSerializer(dataValue.GetType());
+            xmlSerializer.Serialize(xmlWriter, dataValue);
+            XDocument serializedDoc = XDocument.Parse(sw.ToString()); // convierto el string xml en doc
+
             XElement dataToAdd = (
                 new XElement("setting", new XAttribute("name", attributeName), new XAttribute("type", dataValue.GetType().FullName),
-                    new XElement("value", dataValue)
+                    serializedDoc.Root // obtengo el primer elemento, es decir, el objeto serializado.
                 ));
 
             // Verifico si lo que quiero agregar ya existe asi no duplico como un gil.
@@ -61,6 +65,7 @@ namespace MimikyuBoat
             // y si no existe lo creo.
             doc.Root.Add(dataToAdd);
             doc.Save(kyuFilePath);
+            xmlWriter.Dispose();
         }
 
         static public object GET_VALUE_FROM_KYU(string dataName)
@@ -87,36 +92,36 @@ namespace MimikyuBoat
                 doc = XDocument.Load(kyuFilePath);
             }
 
-
+            XmlSerializer xmlSerializer;
             foreach (XElement element in doc.Root.Descendants("setting"))
             {
-                // busco el valor y lo retorno si existe, sino retorno null.
                 if (element.Attribute("name").Value == dataName)
                 {
                     string type = element.Attribute("type").Value;
-                    string dataValue = element.Element("value").Value;
+                    Type objectType = GetType(type);
+                    xmlSerializer = new XmlSerializer(objectType);
+                    XNode child = element.FirstNode; // obtengo el nodo del elemento a deserializar
+                    byte[] childXML = Encoding.UTF8.GetBytes(child.ToString());
 
-                    if (type == "System.Drawing.Rectangle")
-                    {
-                        Rectangle rec = new Rectangle();
-                        string[] splittedValue = dataValue.Split('{', '}', '=', ',');
-                        rec.X = int.Parse(splittedValue[2]);
-                        rec.Y = int.Parse(splittedValue[4]);
-                        rec.Width = int.Parse(splittedValue[6]);
-                        rec.Height = int.Parse(splittedValue[8]);
-                        return rec;
-                    }
-                    else if (type == "System.Int32")
-                    {
-                        return int.Parse(dataValue);
-                    } 
-                    else if (type == "System.Boolean")
-                    {
-                        return dataValue == "true" ? true : false;
-                    } 
-                    return dataValue;
+                    MemoryStream memStream = new MemoryStream(childXML);
+                    object deserializedObject = xmlSerializer.Deserialize(memStream);
 
+                    return deserializedObject;
                 }
+
+            }
+            return null;
+        }
+
+        static Type GetType(string typeName)
+        {
+            Type type = Type.GetType(typeName);
+            if (type != null) return type;
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = assembly.GetType(typeName);
+                if (type != null) return type;
             }
             return null;
         }
