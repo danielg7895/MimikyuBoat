@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     static class Program
     {

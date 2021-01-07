@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     public class BotSettings
     {
@@ -18,30 +18,43 @@ namespace MimikyuBoat
 
         public static Rectangle PLAYER_CONFIGURATION_AREA;
         public static Rectangle TARGET_CONFIGURATION_AREA;
+
         public static string PLAYER_NICKNAME;
         public static int PLAYER_CP_ZONE;
         public static int PLAYER_HP_ZONE;
         public static int PLAYER_MP_ZONE;
         public static int TARGET_HP_ZONE;
 
-
         public static int PLAYER_CP_BARSTART;
         public static int PLAYER_HP_BARSTART;
         public static int PLAYER_MP_BARSTART;
         public static int TARGET_HP_BARSTART;
+
         public static bool AUTO_POT_ENABLED;
         public static int AUTO_POT_PERCENTAGE;
         public static bool RECOVER_MP_ENABLED;
         public static int MP_SIT_PERCENTAGE; 
         public static int MP_STAND_PERCENTAGE;
+
         public static bool ALWAYS_ON_TOP;
         public static bool BOT_PAUSE_CP;
         public static int UPDATE_INTERVAL;
+        public static bool ASSIST_MODE_ENABLED;
+        public static string ASSIST_PLAYER_NICKNAME;
+        public static int ASSIST_PLAYER_POS_X;
+        public static int ASSIST_PLAYER_POS_Y;
 
         public static bool PLAYER_CP_BARSTART_INITIALIZED;
         public static bool PLAYER_HP_BARSTART_INITIALIZED;
         public static bool PLAYER_MP_BARSTART_INITIALIZED;
         public static bool TARGET_HP_BARSTART_INITIALIZED;
+        public static bool PLAYER_REGION_LOADED;
+        public static bool TARGET_REGION_LOADED;
+
+        // Variables que no se guardan, son de uso global
+        public static Bitmap PLAYER_IMAGE;
+        public static Bitmap TARGET_IMAGE;
+
 
         public static void Reload()
         {
@@ -74,6 +87,35 @@ namespace MimikyuBoat
             PLAYER_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_BARSTART_INITIALIZED");
             PLAYER_MP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_MP_BARSTART_INITIALIZED");
             TARGET_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_BARSTART_INITIALIZED");
+            //PLAYER_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_REGION_LOADED");
+            //TARGET_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_REGION_LOADED");
+
+            #region CARGA DE VARIABLES QUE NO SE GUARDAN
+            LoadImageBars();
+
+            #endregion
+        }
+
+        public static bool LoadImageBars()
+        {
+            try
+            {
+                // Para evitar tener problemas al borrar la imagen y crear una nueva 
+                // necesito disposear la imagen apenas la obtengo pero previamente clonandola.
+                Bitmap player_img = new Bitmap("temp/player.jpeg");
+                PLAYER_IMAGE = new Bitmap(player_img);
+                player_img.Dispose();
+
+                Bitmap target_img = new Bitmap("temp/target.jpeg");
+                TARGET_IMAGE = new Bitmap(target_img);
+                target_img.Dispose();
+            }
+            catch (ArgumentException)
+            {
+                Debug.WriteLine("La imagen del target o del player que se intenta acceder no existe");
+                return false;
+            }
+            return true;
         }
     }
 }

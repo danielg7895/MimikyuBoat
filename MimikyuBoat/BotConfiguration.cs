@@ -9,12 +9,10 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class BotConfiguration
     {
-        public Rectangle playerRect;
-        public Rectangle targetRect;
         public volatile bool playerRegionLoaded = false;
         public volatile bool targetRegionLoaded = false;
         public string currentConfigUser;
@@ -66,7 +64,7 @@ namespace MimikyuBoat
             Debug.WriteLine(endPos);
 
             Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            playerRect = new Rectangle(startPos, rectSize);
+            BotSettings.PLAYER_CONFIGURATION_AREA = new Rectangle(startPos, rectSize);
 
             // seteo como que la region del player ya esta cargada para poder comenzar el update.
             playerRegionLoaded = true;
@@ -98,7 +96,7 @@ namespace MimikyuBoat
             Debug.WriteLine(endPos);
 
             Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            targetRect = new Rectangle(startPos, rectSize);
+            BotSettings.TARGET_CONFIGURATION_AREA = new Rectangle(startPos, rectSize);
 
             // seteo como que la region del player ya esta cargada para poder comenzar el update.
             targetRegionLoaded = true;
@@ -107,9 +105,9 @@ namespace MimikyuBoat
             SAVE_SETTINGS_TO_KYU();
         }
 
-        public void ConfigureBarBounds()
+        public bool ConfigureBarBounds()
         {
-
+            // TODO hacer una funcion de esto q se repite wacho
             // seteo la fila de pixeles de cada stat.
             if (form1.zoneComboBoxValue == "Player CP")
             {
@@ -121,6 +119,11 @@ namespace MimikyuBoat
             {
                 player.hpRow = form1.playerStatsMarkerValue;
                 player.hpBarStart = ImageRecognition.Instance.GetPlayerBarPixelStart((int)player.hpRow);
+                if (player.hpBarStart == -1)
+                {
+                    form1.ConsoleWrite("[ERROR]: El marcador de HP(linea celeste) esta fuera de la imagen.");
+                    return false;
+                }
                 BotSettings.PLAYER_HP_BARSTART_INITIALIZED = true;
 
                 Debug.WriteLine("Player Row: " + Player.Instance.hpRow.ToString());
@@ -133,45 +136,49 @@ namespace MimikyuBoat
             }
             else if (form1.zoneComboBoxValue == "Target HP")
             {
-                Target.Instance.hpRow = form1.targetStatsMarkerValue;
-                Target.Instance.hpBarStart = ImageRecognition.Instance.GetTargetBarPixelStart((int)Target.Instance.hpRow);
+                target.hpRow = form1.targetStatsMarkerValue;
+                target.hpBarStart = ImageRecognition.Instance.GetTargetBarPixelStart((int)target.hpRow);
+                if (target.hpBarStart == -1)
+                {
+                    form1.ConsoleWrite("[ERROR]: El marcador de HP(linea celeste) esta fuera de la imagen.");
+                    return false;
+                }
                 BotSettings.TARGET_HP_BARSTART_INITIALIZED = true;
 
                 Debug.WriteLine("Target HP bar start: " + Target.Instance.hpBarStart.ToString());
                 Debug.WriteLine("Target Row: " + Target.Instance.hpRow.ToString());
             }
+            return true;
         }
 
 
         public void UPDATE_APP_DATA()
         {
             // intento cargar las configuraciones previas guardadas
-
             try
             {
-
-                //player.cpBarStart = BotSettings.PLAYER_CP_BARSTART;
-                //player.hpBarStart = BotSettings.PLAYER_HP_BARSTART;
-                //player.mpBarStart = BotSettings.PLAYER_MP_BARSTART;
+                player.cpBarStart = BotSettings.PLAYER_CP_BARSTART;
+                player.hpBarStart = BotSettings.PLAYER_HP_BARSTART;
+                player.mpBarStart = BotSettings.PLAYER_MP_BARSTART;
+                target.hpBarStart = BotSettings.TARGET_HP_BARSTART;
                 player.cpRow =      BotSettings.PLAYER_CP_ZONE;
                 player.hpRow =      BotSettings.PLAYER_HP_ZONE;
                 player.mpRow =      BotSettings.PLAYER_MP_ZONE;
-                target.hpBarStart = BotSettings.TARGET_HP_BARSTART;
                 target.hpRow =      BotSettings.TARGET_HP_ZONE;
             
-                playerRect =        BotSettings.PLAYER_CONFIGURATION_AREA;
-                if (!playerRect.IsEmpty) playerRegionLoaded = true;
+                if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty) playerRegionLoaded = true;
             
-                targetRect =        BotSettings.TARGET_CONFIGURATION_AREA;
-                if (!targetRect.IsEmpty) targetRegionLoaded = true;
+                if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty) targetRegionLoaded = true;
             
                 // Para el caso de variables donde se accede directamente desde botsettings las seteo asi
                 // esto es un poco confuso asique debe ser cambiado.
+
                 BotSettings.PLAYER_CP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CP_BARSTART_INITIALIZED");
                 BotSettings.PLAYER_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_BARSTART_INITIALIZED");
                 BotSettings.PLAYER_MP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_MP_BARSTART_INITIALIZED");
                 BotSettings.TARGET_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_BARSTART_INITIALIZED");
             
+
                  // Config cargada, hora de llamar mis minions!
                  ConfigLoaded?.Invoke();
 
@@ -202,8 +209,8 @@ namespace MimikyuBoat
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_ZONE", player.mpRow);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_ZONE", target.hpRow);
 
-            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_AREA", playerRect);
-            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_AREA", targetRect);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_AREA", BotSettings.PLAYER_CONFIGURATION_AREA);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_AREA", BotSettings.TARGET_CONFIGURATION_AREA);
 
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_ENABLED", form1.autoPotCheckBoxValue);
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_PERCENTAGE", form1.autoPotTextBoxValue);
@@ -212,11 +219,18 @@ namespace MimikyuBoat
             xmlParser.SET_VALUE_TO_KYU("MP_STAND_PERCENTAGE", form1.recoverMPStandTextBoxValue);
 
             xmlParser.SET_VALUE_TO_KYU("UPDATE_INTERVAL", form1.updateIntervalValue);
+            xmlParser.SET_VALUE_TO_KYU("ASSIST_MODE_ENABLED", form1.assistCheckBoxValue);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_CP_BARSTART_INITIALIZED", BotSettings.PLAYER_CP_BARSTART_INITIALIZED);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_HP_BARSTART_INITIALIZED", BotSettings.PLAYER_HP_BARSTART_INITIALIZED);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_BARSTART_INITIALIZED", BotSettings.PLAYER_MP_BARSTART_INITIALIZED);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_BARSTART_INITIALIZED", BotSettings.TARGET_HP_BARSTART_INITIALIZED);
 
+            // chekeo si hay skils pa guarda
+            foreach (Skill skill in player.GetSkills())
+            {
+                xmlParser.SET_VALUE_TO_KYU(skill.name, skill);
+            }
+            
             // llamo a mis minions!
             // ConfigSaved?.Invoke();
         }
@@ -230,6 +244,8 @@ namespace MimikyuBoat
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_BARSTART", -1);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_BARSTART", -1);
 
+
+            // En que posicion en Y comienza la barra de hp, mp, cp, etc.
             xmlParser.SET_VALUE_TO_KYU("PLAYER_CP_ZONE", -1);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_HP_ZONE", -1);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_ZONE", -1);
@@ -251,39 +267,46 @@ namespace MimikyuBoat
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_BARSTART_INITIALIZED", false);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_BARSTART_INITIALIZED", false);
             xmlParser.SET_VALUE_TO_KYU("ALWAYS_ON_TOP", form1.alwaysOnTopValue);
+            xmlParser.SET_VALUE_TO_KYU("ASSIST_MODE_ENABLED", false);
 
         }
 
         public void LOAD_USER_SETTINGS()
         {
+            string fileContent = null;
             playerRegionLoaded = false;
             targetRegionLoaded = false;
 
             // Cargo la configuracion del usuario al programa
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Title = "Abrir .kyu archivo";
-            fileDialog.Filter = "KYU files|*.kyu";
-            fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            using (OpenFileDialog fileDialog = new OpenFileDialog())
             {
-                try
+                fileDialog.Title = "Abrir .kyu archivo";
+                fileDialog.Filter = "KYU files|*.kyu";
+                fileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                if (fileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (fileDialog.OpenFile() != null)
+                    try
                     {
-                        // Archivo abierto, cargo la configuracion del usuario.
-                        BotSettings.KYU_FILE_PATH = fileDialog.FileName;
-                        Debug.WriteLine("kyu file path ahora es: " + BotSettings.KYU_FILE_PATH);
-
-                        // recargo todos los datos del archivo y luego los datos de la app
-                        BotSettings.Reload();
-                        UPDATE_APP_DATA();
+                        var fileStream = fileDialog.OpenFile();
+                        using (StreamReader reader = new StreamReader(fileStream))
+                        {
+                            fileContent = reader.ReadToEnd();
+                        }
+                        if (fileContent != null)
+                        {
+                            // Archivo abierto, cargo la configuracion del usuario.
+                            BotSettings.KYU_FILE_PATH = fileDialog.FileName;
+                            Debug.WriteLine("kyu file path ahora es: " + BotSettings.KYU_FILE_PATH);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: No pude leer el arhivo del disco :(. Error original: " + ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: No pude leer el arhivo del disco :(. Error original: " + ex.Message);
-                }
             }
+            BotSettings.Reload();
+            UPDATE_APP_DATA();
         }
 
         public void SAVE_USER_SETTINGS()

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     public partial class TargetConfiguration : Form
     {
@@ -16,5 +16,6 @@ namespace MimikyuBoat
         {
             InitializeComponent();
         }
+
     }
 }

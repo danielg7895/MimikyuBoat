@@ -1,24 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System.IO;
+using System.Globalization;
 
-namespace MimikyuBoat
+namespace Shizui
 {
+
     public partial class Form1 : Form
     {
         #region imports
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        private static extern IntPtr PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -28,6 +28,9 @@ namespace MimikyuBoat
 
         [DllImport("User32.dll")]
         public static extern void ReleaseDC(IntPtr hwnd, IntPtr dc);
+
+        [DllImport("user32.dll", EntryPoint = "WindowFromPoint", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern IntPtr WindowFromPoint(Point point);
         #endregion 
 
         public volatile bool enterPressed = false;
@@ -40,7 +43,7 @@ namespace MimikyuBoat
         ImageManager imageManager;
         Player player;
         Target target;
-        int GCCleanInterval;
+        Thread thr;
 
         // Controls que son accedidos en botconfiguration.
         public string zoneComboBoxValue
@@ -139,11 +142,19 @@ namespace MimikyuBoat
                 return alwaysOnTopCheckBox.Checked;
             }
         }
+        public bool assistCheckBoxValue
+        {
+            get
+            {
+                return assistCheckBox.Checked;
+            }
+        }
 
+        public static Form form;
         public Form1()
         {
             InitializeComponent();
-            this.Shown += new System.EventHandler(this.Form1_Shown);
+            this.Shown += new EventHandler(this.Form1_Shown);
             //Properties.Settings.Default.Reset();
         }
 
@@ -156,6 +167,10 @@ namespace MimikyuBoat
             player = Player.Instance;
             target = Target.Instance;
 
+            // Thread encargado de ejecutar el mainloop de bot.cs
+            thr = new Thread(bot.MainLoop);
+            thr.IsBackground = true;
+
             playerStatsMarker.Height = 1;
             targetStatsMarker.Height = 1;
             playerStatsMarker.Hide();
@@ -167,12 +182,11 @@ namespace MimikyuBoat
 
             if (File.Exists("default.kyu"))
             {
-                ConsoleWrite("Cargando configuracion.");
                 BotSettings.Load();
                 botConfiguration.UPDATE_APP_DATA();
-                ConsoleWrite("Configuracion cargada.");
 
-                Thread updateThread = new Thread(new ThreadStart(UpdateUI));
+                Thread updateThread = new Thread(UpdateUI);
+                updateThread.IsBackground = true;
                 updateThread.Start();
             } 
             else
@@ -205,8 +219,11 @@ namespace MimikyuBoat
             recoverMPStandTextBox.Text = BotSettings.MP_STAND_PERCENTAGE.ToString();
 
             updateIntervalUpDown.Value = BotSettings.UPDATE_INTERVAL;
-            playerImage.Image = null;
-            targetImage.Image = null;
+
+            if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
+                playerImage.Image = BotSettings.PLAYER_IMAGE;
+            if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
+                targetImage.Image = BotSettings.TARGET_IMAGE;
         }
 
         void ConfigWasSaved()
@@ -217,74 +234,36 @@ namespace MimikyuBoat
 
         public void UpdateUI()
         {
-            ConsoleWrite("EN updateeeeeeeeeeeeeeeeeeeee!!");
-            int counter = 0;
-
-            GCCleanInterval = BotSettings.UPDATE_INTERVAL * 30;
-
             // metodo que se ejecuta cada intervalo definido, sirve para actualizar todo lo que es UI y pertenece a esta clase.
+
+            int counter = 0;
+            int GCCleanInterval = BotSettings.UPDATE_INTERVAL * 30;
+
             while (true)
             {
+                if (!bot.botEnabled)
+                {
+                    imageManager.UpdateTargets();
+                }
+                Invoke((MethodInvoker)delegate
+                {
+                    hpPlayerLabel.Text = "HP: " + player.hp + "%";
+                    hpTargetLabel.Text = "HP: " + target.hp + "%";
+                });
+
                 counter += BotSettings.UPDATE_INTERVAL;
 
-                if (botConfiguration.playerRegionLoaded)
+                if (BotSettings.PLAYER_IMAGE != null && BotSettings.TARGET_IMAGE != null)
                 {
-                    // guardo la imagen del player
-                    Bitmap bmp = imageManager.GetImageFromRect(botConfiguration.playerRect);
-
-                    if (File.Exists(player.imagePath))
+                    Invoke((MethodInvoker)delegate
                     {
-                        while (true)
-                        {
-                            try
-                            {
-                                System.IO.File.Delete(player.imagePath);
-                                break;
-
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("Imagen siendo usada, re intentando... ");
-                                Thread.Sleep(200);
-                            }
-                        }
-                    }
-                    bmp.Save(player.imagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    // actualizo imagen del player en la interfaz
-                    Invoke((MethodInvoker)delegate {
-                        SetPlayerImage(bmp);
+                        if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
+                            SetPlayerImage();
+                        if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
+                            SetTargetImage();
                     });
                 }
 
-                if (botConfiguration.targetRegionLoaded)
-                {
-                    // guardo la imagen del target
-                    Bitmap bmp = imageManager.GetImageFromRect(botConfiguration.targetRect);
-                    if ((System.IO.File.Exists(target.imagePath)))
-                    {
-                        while (true)
-                        {
-                            try
-                            {
-                                System.IO.File.Delete(target.imagePath);
-                                break;
-
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("Imagen siendo usada, re intentando... ");
-                                Thread.Sleep(200);
-                            }
-                        }
-                    }
-                    bmp.Save(target.imagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    // actualizo imagen del target en la interfaz
-                    Invoke((MethodInvoker)delegate {
-                        SetTargetImage(bmp);
-                    });
-                }
                 if ((counter % GCCleanInterval) == 0)
                 {
                     // ejecuto el colector de mugre cada updateinterval * 30
@@ -292,12 +271,62 @@ namespace MimikyuBoat
                     GC.WaitForPendingFinalizers();
                     counter = 0;
                 }
-
                 Thread.Sleep(BotSettings.UPDATE_INTERVAL);
             }
-
         }
 
+        public void SetPlayerImage()
+        {
+            if (playerImage.Image != null)
+            {
+                playerImage.Image.Dispose();
+                BotSettings.LoadImageBars();
+            }
+
+            Bitmap bmp = BotSettings.PLAYER_IMAGE;
+            if (bmp == null)
+            {
+                ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
+                return;
+            }
+
+            playerPanel.Height = bmp.Height;
+            playerPanel.Width = bmp.Width;
+            playerStatsMarker.Width = bmp.Width;
+
+            playerImage.Height = bmp.Height;
+            playerImage.Width = bmp.Width;
+            playerImage.Top = 0;
+            playerImage.Left = 0;
+            playerImage.Image = bmp;
+        }
+
+        public void SetTargetImage()
+        {
+
+            if (targetImage.Image != null)
+            {
+                targetImage.Image.Dispose();
+                BotSettings.LoadImageBars();
+            }
+
+            Bitmap bmp = BotSettings.TARGET_IMAGE;
+            if (bmp == null)
+            {
+                ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
+                return;
+            }
+
+            targetPanel.Height = bmp.Height;
+            targetPanel.Width = bmp.Width;
+            targetStatsMarker.Width = bmp.Width;
+
+            targetImage.Height = bmp.Height;
+            targetImage.Width = bmp.Width;
+            targetImage.Top = 0;
+            targetImage.Left = 0;
+            targetImage.Image = bmp;
+        }
 
         public void ConsoleWrite(string text)
         {
@@ -341,79 +370,43 @@ namespace MimikyuBoat
             th.Start();
         }
 
-        public void SetPlayerImage(Bitmap bmp)
-        {
-            if (playerImage.Image != null)
-                playerImage.Image.Dispose();
-            playerPanel.Height = bmp.Height;
-            playerPanel.Width = bmp.Width;
-            playerStatsMarker.Width = bmp.Width;
-
-            playerImage.Height = bmp.Height;
-            playerImage.Width = bmp.Width;
-            playerImage.Top = 0;
-            playerImage.Left = 0;
-            playerImage.Image = bmp;
-        }
-
-        public void SetTargetImage(Bitmap bmp)
-        {
-            if (targetImage.Image != null)
-                targetImage.Image.Dispose();
-            targetPanel.Height = bmp.Height;
-            targetPanel.Width = bmp.Width;
-            targetStatsMarker.Width = bmp.Width;
-
-            targetImage.Height = bmp.Height;
-            targetImage.Width = bmp.Width;
-            targetImage.Top = 0;
-            targetImage.Left = 0;
-            targetImage.Image = bmp;
-        }
-
-
         private void WindowVisibilityCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = !this.TopMost;
-            botConfiguration.SAVE_SETTINGS_TO_KYU();
+            //botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void StartButton_Click(object sender, EventArgs e)
         {
             ChangeFormColor(Color.Red);
             // Verifico si estan cargadas las imagenes del player y del target
-            if (!botConfiguration.playerRegionLoaded)
+            if (!botConfiguration.playerRegionLoaded || !botConfiguration.targetRegionLoaded)
             {
-                botConfiguration.StartPlayerAreaConfiguration();
+                ConsoleWrite("Antes de iniciar hay que configurar el area del player y target.");
+                return;
             }
-            if (!botConfiguration.targetRegionLoaded)
-            {
-                botConfiguration.StartTargetAreaConfiguration();
-            }
+
             if (!BotSettings.PLAYER_HP_BARSTART_INITIALIZED || !BotSettings.TARGET_HP_BARSTART_INITIALIZED)
             {
-                ConsoleWrite("Para comenzar el bot primero es necesario, como minimo, configurar la zona del HP del player y del target.");
+                ConsoleWrite("Antes de iniciar hay que configurar la zona del HP del player y del target.");
                 return;
             } 
 
-            if (!bot.botEnabled)
+            if (bot.botEnabled)
             {
                 ChangeFormColor(Color.Green);
-                Thread thr = new Thread(new ThreadStart(bot.MainLoop));
-                thr.Start();
-                startButton.Text = "Pausar";
-            }
-            else if (bot.botEnabled && bot.paused == false)
-            {
-                ChangeFormColor(Color.AliceBlue);
-                bot.paused = true;
+                bot.botEnabled = false;
+
                 startButton.Text = "Continuar";
             }
             else
             {
-                ChangeFormColor(Color.Green);
+                ChangeFormColor(Color.AliceBlue);
+                bot.botEnabled = true;
                 startButton.Text = "Pausar";
-                bot.paused = false;
+
+                if (!thr.IsAlive)
+                    thr.Start();
             }
         }
 
@@ -433,10 +426,12 @@ namespace MimikyuBoat
             // TODO: esto no sirve para cuando haya mas stats, cambiarlo.
             if (zoneComboBox.SelectedItem.ToString() == "Target HP")
             {
+                targetStatsMarker.Top = targetImage.Height / 2;
                 targetStatsMarker.Show();
             } else
             {
-                playerStatsMarker.Show(); // linea rosa que selecciona la fila de pixeles
+                playerStatsMarker.Top = playerImage.Height / 2;
+                playerStatsMarker.Show();
             }
             statsSaveButton.Enabled = true;
             statsCancelButton.Enabled = true;
@@ -609,8 +604,6 @@ namespace MimikyuBoat
             th.Start();
         }
 
-        [DllImport("user32.dll")]
-        static extern IntPtr WindowFromPoint(Point point);
         [DllImport("User32.dll")]
         static extern bool GetWindowRect(IntPtr hWnd, ref RECT rec);
         [DllImport("User32.dll")]
@@ -685,5 +678,77 @@ namespace MimikyuBoat
             return title.ToString();
         }
 
+        private void asistCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            //ConsoleWrite("Clickea y mantene apretado el boton \"seleccionar target\" y solta en la barra de party del target a asistir.");
+            if (assistCheckBoxValue)
+                ConsoleWrite("Un macro con </target personaje> a asistir debe estar en F9, la accion /assist debe estar en F10.");
+            else
+                ConsoleWrite("Assist modo desactivado");
+
+            BotSettings.ASSIST_MODE_ENABLED = assistCheckBoxValue;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void assistTargetSelectButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            Cursor.Current = Cursors.Cross;
+            selectingWindowMode = true;
+        }
+
+        public int WM_NCHITTEST = 0x0084;
+        public int WM_SETCURSOR = 0x0020;
+        public int WM_LBUTTONDOWN = 0x0201;
+        public int WM_LBUTTONUP = 0x0202;
+        public int WM_NCACTIVATE = 0x0086;
+        public int WM_ACTIVATEAPP = 0x001C;
+        public int WM_SETFOCUS = 7;
+        public int WM_MOUSEACTIVATE = 0x0021;
+        public IntPtr CreateLParam(int LoWord, int HiWord)
+        {
+            return (IntPtr)((HiWord << 16) | (LoWord & 0xffff));
+        }
+
+        private void assistTargetSelectButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            BotSettings.ASSIST_PLAYER_POS_X = e.X;
+            BotSettings.ASSIST_PLAYER_POS_Y = e.Y;
+            ConsoleWrite(BotSettings.ASSIST_PLAYER_POS_X.ToString() + " " + BotSettings.ASSIST_PLAYER_POS_Y.ToString());
+            selectingWindowMode = false;
+            
+            Thread.Sleep(1000);
+            int lparam = BotSettings.ASSIST_PLAYER_POS_X << 16;
+            ConsoleWrite(lparam.ToString());
+            lparam = lparam | BotSettings.ASSIST_PLAYER_POS_Y;
+            ConsoleWrite(lparam.ToString());
+
+            Point screenPoint = new Point(BotSettings.ASSIST_PLAYER_POS_X, BotSettings.ASSIST_PLAYER_POS_Y);
+            IntPtr handle = WindowFromPoint(screenPoint);
+            ConsoleWrite("handle: " + handle.ToString());
+            if (handle != IntPtr.Zero)
+            {
+                IntPtr result = IntPtr.Zero;
+
+                result = SendMessage((IntPtr)0x00140A74, WM_MOUSEACTIVATE, (IntPtr)0x00140A74, CreateLParam(1, WM_LBUTTONDOWN));
+                result = SendMessage((IntPtr)0x00140A74, WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+                result = SendMessage((IntPtr)0x00140A74, WM_ACTIVATEAPP, (IntPtr)1, IntPtr.Zero);
+                result = SendMessage((IntPtr)0x00140A74, WM_NCACTIVATE, (IntPtr)1, IntPtr.Zero);
+                result = SendMessage((IntPtr)0x00140A74, 0x0006, (IntPtr)1, IntPtr.Zero);
+
+                Thread.Sleep(50);
+                SendMessage((IntPtr)0x00140A74, WM_NCHITTEST, IntPtr.Zero, CreateLParam(891, 1766));
+                Thread.Sleep(1000);
+                PostMessage((IntPtr)0x00140A74, WM_LBUTTONDOWN, (IntPtr)0x00000001, CreateLParam(807, 582));
+
+                SendMessage((IntPtr)0x00140A74, WM_NCHITTEST, IntPtr.Zero, CreateLParam(891, 1766));
+                Thread.Sleep(1000);
+                PostMessage((IntPtr)0x00140A74, WM_LBUTTONUP, (IntPtr)0x00000000, CreateLParam(807, 582));
+
+            }
+        }
     }
 }

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class Player
     {
         public int cp;
-        public int hp;
+        public int hp = 0;
         public int mp;
         public int race;
         public int playerClass;

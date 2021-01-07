@@ -1,4 +1,4 @@
-﻿namespace MimikyuBoat
+﻿namespace Shizui
 {
     partial class SkillConfiguration
     {
@@ -28,23 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
             this.separator = new System.Windows.Forms.Label();
             this.skillListDataGrid = new System.Windows.Forms.DataGridView();
-            this.skillComboBox = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.statsConfigButton = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.shortCutButton = new System.Windows.Forms.Button();
-            this.skillOptionsPanel = new System.Windows.Forms.Panel();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.conditionComboBox = new System.Windows.Forms.ComboBox();
-            this.reuseTimeTextBox = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.active = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -53,6 +42,18 @@
             this.condition = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.shortcut = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.deleteSkill = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.label1 = new System.Windows.Forms.Label();
+            this.statsConfigButton = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.shortCutButton = new System.Windows.Forms.Button();
+            this.skillOptionsPanel = new System.Windows.Forms.Panel();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.conditionComboBox = new System.Windows.Forms.ComboBox();
+            this.reuseTimeTextBox = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.skillListDataGrid)).BeginInit();
             this.skillOptionsPanel.SuspendLayout();
             this.SuspendLayout();
@@ -60,7 +61,7 @@
             // separator
             // 
             this.separator.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.separator.Location = new System.Drawing.Point(12, 110);
+            this.separator.Location = new System.Drawing.Point(12, 33);
             this.separator.Name = "separator";
             this.separator.Size = new System.Drawing.Size(626, 2);
             this.separator.TabIndex = 0;
@@ -68,14 +69,14 @@
             // skillListDataGrid
             // 
             this.skillListDataGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.AliceBlue;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.skillListDataGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle21.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle21.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle21.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle21.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle21.SelectionBackColor = System.Drawing.Color.AliceBlue;
+            dataGridViewCellStyle21.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle21.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.skillListDataGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle21;
             this.skillListDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.skillListDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.active,
@@ -86,52 +87,79 @@
             this.condition,
             this.shortcut,
             this.deleteSkill});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(224)))), ((int)(((byte)(237)))));
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.skillListDataGrid.DefaultCellStyle = dataGridViewCellStyle3;
-            this.skillListDataGrid.Location = new System.Drawing.Point(12, 126);
+            dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle23.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle23.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle23.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(224)))), ((int)(((byte)(237)))));
+            dataGridViewCellStyle23.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle23.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.skillListDataGrid.DefaultCellStyle = dataGridViewCellStyle23;
+            this.skillListDataGrid.Location = new System.Drawing.Point(12, 49);
             this.skillListDataGrid.Name = "skillListDataGrid";
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.AliceBlue;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.skillListDataGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle24.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle24.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle24.SelectionBackColor = System.Drawing.Color.AliceBlue;
+            dataGridViewCellStyle24.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle24.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.skillListDataGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle24;
             this.skillListDataGrid.RowHeadersVisible = false;
             this.skillListDataGrid.Size = new System.Drawing.Size(626, 175);
             this.skillListDataGrid.TabIndex = 1;
             this.skillListDataGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.skillListDataGrid_CellClick);
             this.skillListDataGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.skillListDataGrid_CellValueChanged);
             // 
-            // skillComboBox
+            // active
             // 
-            this.skillComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.skillComboBox.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.skillComboBox.BackColor = System.Drawing.Color.AliceBlue;
-            this.skillComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.skillComboBox.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.skillComboBox.FormattingEnabled = true;
-            this.skillComboBox.Items.AddRange(new object[] {
-            "TEST",
-            "hola",
-            "haha",
-            "nope",
-            "entre cuerdas azules",
-            "ikoo z",
-            "nandemonai",
-            "uwu"});
-            this.skillComboBox.Location = new System.Drawing.Point(68, 326);
-            this.skillComboBox.Name = "skillComboBox";
-            this.skillComboBox.Size = new System.Drawing.Size(367, 24);
-            this.skillComboBox.TabIndex = 2;
-            this.skillComboBox.SelectedIndexChanged += new System.EventHandler(this.SkillComboBox_SelectedIndexChanged);
+            this.active.HeaderText = "";
+            this.active.Name = "active";
+            this.active.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.active.Width = 30;
+            // 
+            // id
+            // 
+            this.id.HeaderText = "ID";
+            this.id.Name = "id";
+            this.id.Width = 40;
+            // 
+            // name
+            // 
+            this.name.HeaderText = "Name";
+            this.name.Name = "name";
+            // 
+            // targetType
+            // 
+            this.targetType.HeaderText = "Target Type";
+            this.targetType.Name = "targetType";
+            this.targetType.ToolTipText = "Tipo de target (propio, enemigos, terreno, etc)";
+            // 
+            // reuseTime
+            // 
+            this.reuseTime.HeaderText = "Tiempo Reuso";
+            this.reuseTime.Name = "reuseTime";
+            // 
+            // condition
+            // 
+            this.condition.HeaderText = "Condicion";
+            this.condition.Name = "condition";
+            this.condition.Width = 140;
+            // 
+            // shortcut
+            // 
+            dataGridViewCellStyle22.BackColor = System.Drawing.Color.AliceBlue;
+            this.shortcut.DefaultCellStyle = dataGridViewCellStyle22;
+            this.shortcut.HeaderText = "Shortcut";
+            this.shortcut.Name = "shortcut";
+            this.shortcut.Width = 60;
+            // 
+            // deleteSkill
+            // 
+            this.deleteSkill.HeaderText = "Eliminar";
+            this.deleteSkill.Name = "deleteSkill";
+            this.deleteSkill.Text = "X";
+            this.deleteSkill.Width = 50;
             // 
             // label1
             // 
@@ -192,17 +220,28 @@
             // skillOptionsPanel
             // 
             this.skillOptionsPanel.BackColor = System.Drawing.Color.White;
+            this.skillOptionsPanel.Controls.Add(this.listBox1);
             this.skillOptionsPanel.Controls.Add(this.textBox1);
             this.skillOptionsPanel.Controls.Add(this.label5);
             this.skillOptionsPanel.Controls.Add(this.conditionComboBox);
             this.skillOptionsPanel.Controls.Add(this.reuseTimeTextBox);
             this.skillOptionsPanel.Controls.Add(this.label4);
             this.skillOptionsPanel.Controls.Add(this.shortCutButton);
-            this.skillOptionsPanel.Enabled = false;
             this.skillOptionsPanel.Location = new System.Drawing.Point(25, 357);
             this.skillOptionsPanel.Name = "skillOptionsPanel";
             this.skillOptionsPanel.Size = new System.Drawing.Size(600, 195);
             this.skillOptionsPanel.TabIndex = 28;
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(43, -7);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(367, 95);
+            this.listBox1.TabIndex = 30;
+            this.listBox1.Visible = false;
+            this.listBox1.SelectedValueChanged += new System.EventHandler(this.listBox1_SelectedValueChanged);
+            this.listBox1.Leave += new System.EventHandler(this.listBox1_Leave);
             // 
             // textBox1
             // 
@@ -253,55 +292,13 @@
             this.label4.TabIndex = 32;
             this.label4.Text = "Tiempo de reuso (milisegundos)";
             // 
-            // active
+            // textBox2
             // 
-            this.active.HeaderText = "";
-            this.active.Name = "active";
-            this.active.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.active.Width = 30;
-            // 
-            // id
-            // 
-            this.id.HeaderText = "ID";
-            this.id.Name = "id";
-            this.id.Width = 40;
-            // 
-            // name
-            // 
-            this.name.HeaderText = "Name";
-            this.name.Name = "name";
-            // 
-            // targetType
-            // 
-            this.targetType.HeaderText = "Target Type";
-            this.targetType.Name = "targetType";
-            this.targetType.ToolTipText = "Tipo de target (propio, enemigos, terreno, etc)";
-            // 
-            // reuseTime
-            // 
-            this.reuseTime.HeaderText = "Tiempo Reuso";
-            this.reuseTime.Name = "reuseTime";
-            // 
-            // condition
-            // 
-            this.condition.HeaderText = "Condicion";
-            this.condition.Name = "condition";
-            this.condition.Width = 140;
-            // 
-            // shortcut
-            // 
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.AliceBlue;
-            this.shortcut.DefaultCellStyle = dataGridViewCellStyle2;
-            this.shortcut.HeaderText = "Shortcut";
-            this.shortcut.Name = "shortcut";
-            this.shortcut.Width = 60;
-            // 
-            // deleteSkill
-            // 
-            this.deleteSkill.HeaderText = "Eliminar";
-            this.deleteSkill.Name = "deleteSkill";
-            this.deleteSkill.Text = "X";
-            this.deleteSkill.Width = 50;
+            this.textBox2.Location = new System.Drawing.Point(68, 328);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(367, 20);
+            this.textBox2.TabIndex = 29;
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // SkillConfiguration
             // 
@@ -310,11 +307,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(650, 564);
+            this.Controls.Add(this.textBox2);
             this.Controls.Add(this.skillOptionsPanel);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.statsConfigButton);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.skillComboBox);
             this.Controls.Add(this.skillListDataGrid);
             this.Controls.Add(this.separator);
             this.KeyPreview = true;
@@ -333,7 +330,6 @@
 
         private System.Windows.Forms.Label separator;
         private System.Windows.Forms.DataGridView skillListDataGrid;
-        private System.Windows.Forms.ComboBox skillComboBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button statsConfigButton;
         private System.Windows.Forms.Button button1;
@@ -352,5 +348,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn condition;
         private System.Windows.Forms.DataGridViewTextBoxColumn shortcut;
         private System.Windows.Forms.DataGridViewButtonColumn deleteSkill;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }

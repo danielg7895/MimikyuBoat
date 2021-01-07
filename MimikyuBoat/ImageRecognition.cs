@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class ImageRecognition
     {
@@ -40,22 +40,12 @@ namespace MimikyuBoat
 
         public int RecognizePlayerStat(int statRow)
         {
-            Bitmap bmp;
-            while (true)
-            {
-                // TODO: Hacer un sistema atomico de uso de recursos compartidos como esto para evitar hacer este asqueroso hack.
-                try
-                {
-                    bmp = new Bitmap("temp/player.jpeg");
-                    break;
+            // hago una copia del bitmap porq puede suceder que justo cuando toco el bitmap de botsettings,
+            // en alguna parte se cambie el bitmap de bottsetings y eso generaria un error
+            // de que esta en uso
+            Bitmap bmp = new Bitmap(BotSettings.PLAYER_IMAGE);
+            if (bmp == null) return 0;
 
-                } catch (System.ArgumentException e)
-                {
-                    Debug.WriteLine(e.Message);
-                    Debug.WriteLine("[RecognizePlayerStatt]: la imagen q se intenta acceder esta borrada capo");
-                    Thread.Sleep(200);
-                }
-            }
             // maxima cantidad negros de pixel que puede llegar a haber
             //int row = (int)Player.Instance.hpRow;
             int statPercentage = 0;
@@ -88,8 +78,6 @@ namespace MimikyuBoat
                         break;
                     }
                 }
-
-
             }
             bmp.Dispose();
             return statPercentage;
@@ -128,29 +116,18 @@ namespace MimikyuBoat
 
         public int RecognizePlayerMP()
         {
-
             return 0;
         }
 
         public int RecognizeTargetHP()
         {
-            Bitmap bmp;
-            while (true)
+            Bitmap bmp = new Bitmap(BotSettings.TARGET_IMAGE);
+            if (bmp == null)
             {
-                // TODO: Hacer un sistema atomico de uso de recursos compartidos como esto para evitar hacer este asqueroso hack.
-                try
-                {
-                    bmp = new Bitmap("temp/target.jpeg");
-                    break;
-
-                }
-                catch (System.ArgumentException e)
-                {
-                    Debug.WriteLine(e.Message);
-                    Debug.WriteLine("[RecognizeTargetHP]: la imagen q se intenta acceder esta borrada capo");
-                    Thread.Sleep(200);
-                }
+                Debug.WriteLine("yep nul");
+                return 0;
             }
+
 
             int targetBarStart = (int)Target.Instance.hpBarStart;
             int statPercentage = 0;
@@ -177,42 +154,39 @@ namespace MimikyuBoat
                     Console.WriteLine("Target percentage" + statPercentage.ToString());
                     break;
                 }
-
             }
             bmp.Dispose();
-
             return statPercentage;
         }
 
         public int GetTargetBarPixelStart(int statRow)
         {
-            return GetBarPixelStart(Target.Instance.imagePath, statRow);
+            return GetBarPixelStart(BotSettings.TARGET_IMAGE, statRow);
         }
         public int GetPlayerBarPixelStart(int statRow)
         {
-            return GetBarPixelStart(Player.Instance.imagePath, statRow);
+            return GetBarPixelStart(BotSettings.PLAYER_IMAGE, statRow);
         }
 
 
-        int GetBarPixelStart(string imagePath, int statRow)
+        int GetBarPixelStart(Bitmap bmp, int statRow)
         {
             // intenta obtener en que pixel comienza la barrita del stat (hp,mp,cp, hp target)
             // esta funcion falla si el primer pixel es blanco.
-            Bitmap bmp = new Bitmap(imagePath);
 
             for (int i = 0; i < bmp.Width; i++)
             {
                 // si cualquier valor de rgb es 255 significa que el pixel es blanco
                 // porque previamente la imagen ya se hizo monocromatica
+                if(statRow > bmp.Height)
+                {
+                    return -1;   
+                }
                 if (bmp.GetPixel(i, statRow).R >= 200)
                 {
-                    // pixel blanco
-                    bmp.Dispose();
                     return i;
                 }
             }
-            bmp.Dispose();
-
             return 0;
         }
     }

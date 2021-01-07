@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 using System.Drawing;
 using System.Xml;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class XMLParser
     {
@@ -26,8 +26,9 @@ namespace MimikyuBoat
             }
 
             XDocument doc;
-            if (File.ReadLines(kyuFilePath).Count() == 0)
+            if (File.ReadAllLines(kyuFilePath).Count() == 0)
             {
+                Debug.WriteLine("no hay un pingo");
                 // si no hay nada en el archivo creo el primer elemento e inicializo el xml
                 doc = new XDocument(new XElement("settings"));
             }
@@ -49,6 +50,8 @@ namespace MimikyuBoat
                     serializedDoc.Root // obtengo el primer elemento, es decir, el objeto serializado.
                 ));
 
+
+                bool elemExists = false;
             // Verifico si lo que quiero agregar ya existe asi no duplico como un gil.
             foreach (XElement element in doc.Root.Descendants("setting"))
             {
@@ -57,20 +60,20 @@ namespace MimikyuBoat
                 {
                     // el elemento ya existe, procedo a reemplazarlo por el actual!
                     element.ReplaceWith(dataToAdd);
-                    doc.Save(kyuFilePath);
-                    return;
+                    elemExists = true;
+                    break;
                 }
             }
-
-            // y si no existe lo creo.
-            doc.Root.Add(dataToAdd);
+            if (!elemExists)
+                // y si no existe lo creo.
+                doc.Root.Add(dataToAdd);
+            
             doc.Save(kyuFilePath);
             xmlWriter.Dispose();
         }
 
         static public object GET_VALUE_FROM_KYU(string dataName)
         {
-            // TODO: cambiar esto por objetos deserializados en vez de hardcodear todo
 
             string kyuFilePath = BotSettings.KYU_FILE_PATH;
             if (!File.Exists(kyuFilePath))
@@ -79,8 +82,9 @@ namespace MimikyuBoat
                 return null;
             }
 
-            XDocument doc;
-            if (File.ReadLines(kyuFilePath).Count() == 0)
+            XDocument doc = new XDocument();
+            string[] lines = File.ReadAllLines(kyuFilePath);
+            if (lines.Count() == 0)
             {
                 // si no hay nada en el archivo retorno null
                 Debug.WriteLine("Archivo esta vacio");
@@ -105,11 +109,13 @@ namespace MimikyuBoat
 
                     MemoryStream memStream = new MemoryStream(childXML);
                     object deserializedObject = xmlSerializer.Deserialize(memStream);
+                    memStream.Close();
+                    memStream.Dispose();
 
                     return deserializedObject;
                 }
-
             }
+            
             return null;
         }
 

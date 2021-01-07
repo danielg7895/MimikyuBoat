@@ -11,11 +11,13 @@ using System.Xml.Linq;
 using System.Diagnostics;
 using System.Threading;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     public partial class SkillConfiguration : Form
     {
         public Exception SKILL_ID_NOT_FOUND { get; private set; }
+
+        Query query;
 
         public SkillConfiguration()
         {
@@ -30,19 +32,27 @@ namespace MimikyuBoat
             loader.Start();
         }
 
+        List<string> allSkills = new List<string>();
         public void LoadSkillList()
         {
+            allSkills = new List<string>(); // por defecto tiene cargado todes los skllils
+
             string xmlPath = @"config/skills.xml";
             XDocument doc = XDocument.Load(xmlPath);
             foreach (XElement skill in doc.Root.Descendants("skill"))
             {
                 if (skill.Element("operateType").Value == "P") continue; // ignoro skills pasivos
-                this.Invoke((MethodInvoker)delegate
-                {
-                    skillComboBox.Items.Add(skill.Attribute("name").Value);
+                string skillName = skill.Attribute("name").Value;
 
-                });
+                if (skillName == "") continue;  // ignoro skills rotos.
+
+                if (!allSkills.Contains(skillName)) {
+                    allSkills.Add(skillName);
+                }
             }
+
+            // Inicializo el query para futuro uso.
+            query = new Query(allSkills);
         }
 
         public int GetSkillID(string name)
@@ -62,6 +72,7 @@ namespace MimikyuBoat
 
         public Skill GetSkill(string name)
         {
+            // obtengo la data del skill desde el xml de skills.
             Skill skill;
             XDocument doc = XDocument.Load(BotSettings.SKILL_XML_PATH);
             foreach (XElement element in doc.Root.Descendants("skill"))
@@ -83,7 +94,11 @@ namespace MimikyuBoat
 
         private void SkillComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            skillOptionsPanel.Enabled = true;
+            shortCutButton.Enabled = true;
+            reuseTimeTextBox.Enabled = true;
+            conditionComboBox.Enabled = true;
+            textBox1.Enabled = true;
+            //skillOptionsPanel.Enabled = true;
         }
 
         private void ShortCutButton_Click(object sender, EventArgs e)
@@ -109,9 +124,13 @@ namespace MimikyuBoat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            skillOptionsPanel.Enabled = false;
+            //skillOptionsPanel.Enabled = false;
+            shortCutButton.Enabled = false;
+            reuseTimeTextBox.Enabled = false;
+            conditionComboBox.Enabled = false;
+            textBox1.Enabled = false;
 
-            Skill skill = GetSkill(skillComboBox.Text);
+            Skill skill = GetSkill(textBox2.Text);
             Skill.Condition skillCondition = (Skill.Condition)Enum.Parse(typeof(Skill.Condition), conditionComboBox.SelectedItem.ToString());
             skill.SetUsageCondition(skillCondition);
             skill.reuseTime = int.Parse(reuseTimeTextBox.Text);
@@ -161,5 +180,54 @@ namespace MimikyuBoat
             }
 
         }
+
+        List<string> matchSkills;
+        bool shouldSearch = true;
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+
+            TextBox t = sender as TextBox;
+            if (t == null) return;
+
+            if (t.Text.Length >= 0 && shouldSearch)
+            {
+                matchSkills = query.PerformQuery(t.Text);
+                // agrego los resultados obtenidos de la query directamente en la lista.
+                listBox1.Items.AddRange(matchSkills.ToArray());
+                listBox1.Visible = true;
+                listBox1.Enabled = true;
+            }
+            else
+            {
+                shouldSearch = true;
+                query.Reset();
+            }
+            Console.WriteLine("asd");
+
+        }
+
+        private void listBox1_Leave(object sender, EventArgs e)
+        {
+            Console.WriteLine("salien2");
+            HideListbox();
+        }
+
+
+        private void listBox1_SelectedValueChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("selectedchange");
+            shouldSearch = false;
+            textBox2.Text = listBox1.Items[listBox1.SelectedIndex].ToString();
+            HideListbox();
+        }
+
+        void HideListbox()
+        {
+
+            Console.WriteLine("escondien2");
+            listBox1.Visible = false;
+        }
+
     }
 }

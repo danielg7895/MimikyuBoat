@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MimikyuBoat
+namespace Shizui
 {
 
     class VirtualKeyBoard
@@ -147,12 +148,77 @@ namespace MimikyuBoat
         [DllImport("user32.dll")]
         public static extern int OemKeyScan(char wOemChar); // para obtener las scancode de las keys.
 
-        public void SendKeyToProcess(IntPtr processHandle, VirtualKey key, int timePress = 353)
+        // ======================================= AGREGADO POR HOT FIX EVENTO ==========================
+        [DllImport("gdi32.dll")]
+        private unsafe static extern bool SetDeviceGammaRamp(Int32 hdc, void* ramp);
+
+        private static bool initialized = false;
+        private static Int32 hdc;
+
+
+        private static void InitializeClass()
+        {
+            if (initialized)
+                return;
+
+            //Get the hardware device context of the screen, we can do
+            //this by getting the graphics object of null (IntPtr.Zero)
+            //then getting the HDC and converting that to an Int32.
+            hdc = Graphics.FromHwnd(IntPtr.Zero).GetHdc().ToInt32();
+
+            initialized = true;
+        }
+
+
+        public unsafe bool SetBrightness(short brightness)
+        {
+            InitializeClass();
+
+            if (brightness > 255)
+                brightness = 255;
+
+            if (brightness < 0)
+                brightness = 0;
+
+            short* gArray = stackalloc short[3 * 256];
+            short* idx = gArray;
+
+            for (int j = 0; j < 3; j++)
+            {
+                for (int i = 0; i < 256; i++)
+                {
+                    int arrayVal = i * (brightness + 128);
+
+                    if (arrayVal > 65535)
+                        arrayVal = 65535;
+
+                    *idx = (short)arrayVal;
+                    idx++;
+                }
+            }
+
+            //For some reason, this always returns false?
+            bool retVal = SetDeviceGammaRamp(hdc, gArray);
+
+            //Memory allocated through stackalloc is automatically free'd
+            //by the CLR.
+
+            return retVal;
+        }
+        public void ActivateWindow(IntPtr processHandle)
+        {
+            PostMessage(processHandle, 0x006, 1, 0x0); // WM_ACTIVATE
+            SetBrightness(128);
+            Debug.Write("Ventana activada!");
+        }
+
+        // ======================================= FIN AGREGADO POR HOT FIX EVENTO ==========================
+
+        public void SendKeyToProcess(IntPtr processHandle, VirtualKey key, int timePress = 100)
         {
             // Convierto la key recibida a char para poder luego obtener su scancode!
             KeysConverter keysConverter = new KeysConverter();
-            char keyChar = (char)int.Parse(keysConverter.ConvertToString((int)key));
-            Debug.WriteLine("KeyChar convertida : " + keyChar);
+            char keyChar = (char)key; // (char)int.Parse(keysConverter.ConvertToString((int)key));
 
             // Obtengo el scancode de la key
             int scanCode = OemKeyScan(keyChar);
@@ -166,6 +232,34 @@ namespace MimikyuBoat
 
             PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYDOWN, (uint)key, lparam);
             Thread.Sleep(timePress);
+            PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYUP, (uint)key, lparam);
+        }
+
+        public void KeyDownPress(IntPtr processHandle, VirtualKey key, int timePress = 343)
+        {
+            // Convierto la key recibida a char para poder luego obtener su scancode!
+            KeysConverter keysConverter = new KeysConverter();
+            char keyChar = (char)key; // (char)int.Parse(keysConverter.ConvertToString((int)key));
+
+            // Obtengo el scancode de la key
+            int scanCode = OemKeyScan(keyChar);
+
+            // el lparam del l2 esta compuesto con 1bit seteado en key repeat count (bit 0-16) y
+            // el scancode esta en los bit 16-23 (1 byte). entonces:
+            uint lparam = 0;
+            uint scanCodeParam = (uint)scanCode << 16; // me corro 16 bits porque es la posicion del scanCode
+            uint keyRepeat = 1; // por defecto repito una vez!, no me corro porque son los primeros 16 bits
+            lparam = lparam | scanCodeParam | keyRepeat;
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            while(true)
+            {
+
+                PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYDOWN, (uint)key, lparam);
+                Thread.Sleep(100);
+            }
+
             PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYUP, (uint)key, lparam);
         }
 

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class Target {
-        public int hp;
+        public int hp = 0;
 
         public int hpBarStart;
 
@@ -26,6 +26,7 @@ namespace MimikyuBoat
         public delegate void OnDead();
         public event OnDead Dead; // TODO: pensar un mejor nombre... es horrible esto!
         #endregion 
+
         #region singleton
         private static Target _instance;
         public static Target Instance
@@ -48,10 +49,10 @@ namespace MimikyuBoat
             if (hp == 0)
             {
                 isDead = true;
-                Dead.Invoke();
+                //Dead.Invoke();
                 return;
             }
-            HPChanged.Invoke();
+            //HPChanged.Invoke();
         }
 
     }

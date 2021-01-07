@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     public class Skill
     {
@@ -42,6 +42,11 @@ namespace MimikyuBoat
             this.name = name;
             this.reuseTime = reuseTime;
             this.targetType = targetType;
+        }
+
+        public Skill()
+        {
+
         }
 
         public Condition GetUsageCondition()

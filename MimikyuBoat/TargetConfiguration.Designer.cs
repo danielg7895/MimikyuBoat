@@ -1,4 +1,4 @@
-﻿namespace MimikyuBoat
+﻿namespace Shizui
 {
     partial class TargetConfiguration
     {

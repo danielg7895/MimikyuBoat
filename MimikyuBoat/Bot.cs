@@ -8,14 +8,14 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 
-namespace MimikyuBoat
+namespace Shizui
 {
     class Bot
     {
         // si estoy seleccionando el area del player o target
         public volatile int updateInterval = 1000;
-        public bool paused = false;
         public bool botEnabled = false;
+        bool monsterDead = false;
 
         // private variables
         readonly Utils utils;
@@ -25,10 +25,24 @@ namespace MimikyuBoat
         readonly Target target;
         VirtualKeyBoard virtualKeyBoard;
 
-        List<Target> targets;
+        //List<Target> targets;
+        //List<VirtualKeyBoard.VirtualKey> targets;
 
-        Target previousTarget;
-        Target currentTarget;
+        VirtualKeyBoard.VirtualKey previousTarget;
+        VirtualKeyBoard.VirtualKey currentTarget;
+        VirtualKeyBoard.VirtualKey attack = VirtualKeyBoard.VirtualKey.VK_1;
+        VirtualKeyBoard.VirtualKey spoil = VirtualKeyBoard.VirtualKey.VK_2;
+        VirtualKeyBoard.VirtualKey sweep = VirtualKeyBoard.VirtualKey.VK_3;
+        VirtualKeyBoard.VirtualKey pickup = VirtualKeyBoard.VirtualKey.VK_4;
+        VirtualKeyBoard.VirtualKey potion = VirtualKeyBoard.VirtualKey.VK_5;
+
+        // Assist shortcuts
+        VirtualKeyBoard.VirtualKey assistTarget = VirtualKeyBoard.VirtualKey.VK_F9;
+        VirtualKeyBoard.VirtualKey assistAction = VirtualKeyBoard.VirtualKey.VK_F10;
+
+        // Conditional shortcuts
+        VirtualKeyBoard.VirtualKey hpLessThan30Percent = VirtualKeyBoard.VirtualKey.VK_F11;
+
 
         #region events
         public delegate void OnEnemyDead();
@@ -81,51 +95,119 @@ namespace MimikyuBoat
             utils.ConsoleWrite("Comenzando a botear !");
             watch = new Stopwatch(); // comienzo el timer!
 
+            VirtualKeyBoard.VirtualKey[] targets = new VirtualKeyBoard.VirtualKey[5]
+            {
+                VirtualKeyBoard.VirtualKey.VK_6,
+                VirtualKeyBoard.VirtualKey.VK_7,
+                VirtualKeyBoard.VirtualKey.VK_8,
+                VirtualKeyBoard.VirtualKey.VK_9,
+                VirtualKeyBoard.VirtualKey.VK_0
+            };
+
             int totalTargets = 0;
             while (true)
             {
-                botEnabled = true;
-                if (paused)
+                if (!botEnabled)
                 {
                     Thread.Sleep(500);
                     continue;
                 }
                 // comienzo un timer para detectar cannot see target cuando la hp target no baja en un tiempo
                 // obtengo stats del player y del target reconociendo las imagenes
-                //playerCP = imageRecognition.RecognizePlayerStat();
-                player.mp = imageRecognition.RecognizePlayerStat(player.mpRow);
+                imageManager.UpdateTargets(); // actualizo imagen de target y de player
+
+                // target muere, si bicho no esta en target del playertoassist entonces la siguiente
+                // foto que saca, es la del target al playertoassist
+                // si frame anterior estaba muerto el bicho, entonces ahora no ejecuto nada hasta q el bicho tenga vida
+                // eliminar Bmp.save
                 player.hp = imageRecognition.RecognizePlayerStat(player.hpRow);
                 target.hp = imageRecognition.RecognizeTargetHP();
-                utils.ConsoleWrite("Player HP: " + player.hp.ToString() + " %" );
-                utils.ConsoleWrite("Target HP: " + target.hp.ToString() + " %");
-
-                if (AttackTimeOver())
+                if (monsterDead && target.hp > 0)
                 {
-                    TryEscapeCannotSeeTarget();
-                    currentTarget = targets[totalTargets % targets.Count];
-                    totalTargets++;
+                    monsterDead = false;
                 }
 
-
-                // TODO: si no hay target > buscar target
-                if (target.isDead)
+                if (!monsterDead || !BotSettings.ASSIST_MODE_ENABLED)
                 {
-                    utils.ConsoleWrite("Target Muerto, buscando siguiente target...");
-                    previousTarget = currentTarget;
-                    Thread.Sleep(500);
-                    currentTarget = targets[totalTargets % targets.Count];
-                    totalTargets++;
-                }
-                previousTargetHP = (int)target.hp;
+                    if (AttackTimeOver())
+                    {
+                        TryEscapeCannotSeeTarget();
+                        currentTarget = targets[totalTargets % targets.Length];
+                        totalTargets++;
+                    }
 
-                Thread.Sleep(updateInterval);
+                    if(player.hp < 80)
+                    {
+                        utils.ConsoleWrite("Player HP baja, usando pocion!");
+                        UsePotion();
+                    }
+
+                    if (target.hp <= 80 && target.hp >= 50)
+                    {
+                        UseShortCut(spoil);
+                    }
+
+                    // TODO: si no hay target > buscar target
+                    if (target.hp <= 0)
+                    {
+                        Thread.Sleep(300);
+
+                        utils.ConsoleWrite("Usando Sweeper...");
+                        UseShortCut(sweep);
+                        Thread.Sleep(300);
+
+                        // intento pickear
+                        UseShortCut(key: pickup, repeat: 4, delayPerAction: 100);
+
+                        if (BotSettings.ASSIST_MODE_ENABLED)
+                        {
+                            utils.ConsoleWrite("Target Muerto, asistiendo...");
+                            UseShortCut(assistTarget, repeat: 1, delayPerAction: 100);
+                        }
+                        else
+                        {
+                            utils.ConsoleWrite("Target Muerto, buscando siguiente target...");
+                            previousTarget = currentTarget;
+                            currentTarget = targets[totalTargets % targets.Length];
+                            totalTargets++;
+                        }
+                        monsterDead = true;
+                    }
+                    if (BotSettings.ASSIST_MODE_ENABLED)
+                    {
+
+                        UseShortCut(assistTarget, repeat: 1, delayPerAction: 100);
+                        UseShortCut(assistAction, 1, 100);
+                        //Thread.Sleep(1000);
+                        UseShortCut(attack, 2, 100);
+                    } else
+                    {
+                        UseShortCut(currentTarget);
+                    }
+                    Thread.Sleep(1000);
+
+                    previousTargetHP = (int)target.hp;
+                } else
+                {
+                    watch.Restart();
+                }
+
+                //Thread.Sleep(updateInterval);
             }
+        }
+
+        void UsePotion()
+        {
+            virtualKeyBoard.ActivateWindow(BotSettings.L2_PROCESS_HANDLE);
+
+            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, potion, new Random().Next(1000, 3000));
+
         }
 
         bool AttackTimeOver()
         {
 
-            if (watch.ElapsedMilliseconds > 20000 && previousTargetHP == target.hp)
+            if (watch.ElapsedMilliseconds > 20000 && previousTargetHP == target.hp || watch.ElapsedMilliseconds > (60000 * 10))
             {
                 watch.Restart();
                 return true;
@@ -141,18 +223,35 @@ namespace MimikyuBoat
         public void TryEscapeCannotSeeTarget()
         {
             utils.ConsoleWrite("Cannot see target?? intentando salir...");
+            virtualKeyBoard.ActivateWindow(BotSettings.L2_PROCESS_HANDLE);
+            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
+            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
 
-            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_W, new Random().Next(1000, 3000));
+            int num = new Random().Next(0, 2);
 
-            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_D, new Random().Next(1000, 3000));
-            
-            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_S, new Random().Next(1000, 3000));
+            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_S, new Random().Next(500, 2000));
+            if(num == 0)
+            {
+                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_A, new Random().Next(500, 3000));
+                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_W, new Random().Next(500, 3000));
+            }
+            else
+            {
+                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_D, new Random().Next(500, 2000));
+                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_S, new Random().Next(500, 3000));
+            }
 
         }
 
-        public void UseShortCut(VirtualKeyBoard.VirtualKey key)
+        public void UseShortCut(VirtualKeyBoard.VirtualKey key, int repeat = 1, int delayPerAction = 23)
         {
-            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, key);
+            while (repeat > 0)
+            {
+                repeat--;
+                Debug.WriteLine("[" + watch.ElapsedMilliseconds.ToString() + "] utilice " + key.ToString());
+                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, key);
+                Thread.Sleep(delayPerAction);
+            }
         }
 
         public void UseSkill(Skill skill)
