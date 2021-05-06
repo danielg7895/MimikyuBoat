@@ -16,16 +16,6 @@ namespace Shizui
         public int playerClass;
         public string nickName = "";
 
-        // en que pixel comienza la barra
-        public int cpBarStart;
-        public int hpBarStart;
-        public int mpBarStart;
-
-        public int hpRow = -1;
-        public int mpRow = -1;
-        public int cpRow = -1;
-
-        public string imagePath = "temp/player.jpeg";
 
         Target target;
         List<Skill> skills;
@@ -165,7 +155,6 @@ namespace Shizui
                     if (mp < currentSkill.MPCost)
                     {
                         // no tengo mp para usar el skill, que hago? no se, dios sabra.
-                        Utils.Instance.ConsoleWrite("Intentando usar un skill del que no tengo mp...");
                         Bot.Instance.UseSkill(currentSkill);
                     }
                     else

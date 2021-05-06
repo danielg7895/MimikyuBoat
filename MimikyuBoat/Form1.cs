@@ -6,11 +6,9 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System.IO;
-using System.Globalization;
 
 namespace Shizui
 {
-
     public partial class Form1 : Form
     {
         #region imports
@@ -39,34 +37,16 @@ namespace Shizui
 
         BotConfiguration botConfiguration;
         Bot bot;
-        Utils utils;
-        ImageManager imageManager;
         Player player;
-        Target target;
         Thread thr;
+        Thread updateThread;
 
+        Target target;
+
+
+        #region controls
         // Controls que son accedidos en botconfiguration.
-        public string zoneComboBoxValue
-        {
-            get
-            {
-                return zoneComboBox.SelectedItem.ToString();
-            }
-        }
-        public int playerStatsMarkerValue
-        {
-            get
-            {
-                return playerStatsMarker.Top;
-            }
-        }
-        public int targetStatsMarkerValue
-        {
-            get
-            {
-                return targetStatsMarker.Top;
-            }
-        }
+     
         public bool autoPotCheckBoxValue
         {
             get
@@ -149,6 +129,7 @@ namespace Shizui
                 return assistCheckBox.Checked;
             }
         }
+        #endregion
 
         public static Form form;
         public Form1()
@@ -158,24 +139,33 @@ namespace Shizui
             //Properties.Settings.Default.Reset();
         }
 
+        public static void GlobalHandler(ThreadStart threadStartTarget)
+        {
+            try
+            {
+                threadStartTarget.Invoke();
+            }
+            catch (Exception e)
+            {
+                File.AppendAllText("log.txt", "StackTrace: " + e.StackTrace + Environment.NewLine);
+                File.AppendAllText("log.txt", "Message: " + e.Message + Environment.NewLine);
+                File.AppendAllText("log.txt", "Source: " + e.Source + Environment.NewLine);
+                File.AppendAllText("log.txt", "InnerException: " + e.InnerException + Environment.NewLine);
+                File.AppendAllText("log.txt", "Data: " + e.Data + Environment.NewLine);
+                MessageBox.Show("Ocurrio un error, guardado en el log.");
+            }
+        }
+
         private void Form1_Shown(object sender, EventArgs e)
         {
-            utils = new Utils();
             bot = new Bot();
             botConfiguration = new BotConfiguration(this);
-            imageManager = ImageManager.Instance;
             player = Player.Instance;
             target = Target.Instance;
 
             // Thread encargado de ejecutar el mainloop de bot.cs
-            thr = new Thread(bot.MainLoop);
+            thr = new Thread(o=> GlobalHandler(bot.MainLoop));
             thr.IsBackground = true;
-
-            playerStatsMarker.Height = 1;
-            targetStatsMarker.Height = 1;
-            playerStatsMarker.Hide();
-            targetStatsMarker.Hide();
-            statsConfigButton.Enabled = false;
 
             botConfiguration.ConfigLoaded += ConfigWasLoaded;
             botConfiguration.ConfigSaved += ConfigWasSaved;
@@ -185,7 +175,7 @@ namespace Shizui
                 BotSettings.Load();
                 botConfiguration.UPDATE_APP_DATA();
 
-                Thread updateThread = new Thread(UpdateUI);
+                updateThread = new Thread(o=> GlobalHandler(UpdateUI));
                 updateThread.IsBackground = true;
                 updateThread.Start();
             } 
@@ -199,6 +189,7 @@ namespace Shizui
                     using (File.Create(direc));
                     botConfiguration.GENERATE_DEFAULT_CONFIG_FILE();
                     BotSettings.Load();
+                    botConfiguration.UPDATE_APP_DATA();
                     ConsoleWrite("Archivo generado correctamente.");
                 }
                 catch (Exception err)
@@ -211,6 +202,8 @@ namespace Shizui
         void ConfigWasLoaded()
         {
             // Metodo llamado una vez que la configuracion fue cargada.
+            this.Text = "Shizui - " + BotSettings.USER_NAME.ToUpper();
+            userNameTextBox.Text = BotSettings.USER_NAME.ToUpper();
             autoPotCheckBox.Checked = BotSettings.AUTO_POT_ENABLED;
             autoPotTextBox.Text = BotSettings.AUTO_POT_PERCENTAGE.ToString();
 
@@ -220,10 +213,11 @@ namespace Shizui
 
             updateIntervalUpDown.Value = BotSettings.UPDATE_INTERVAL;
 
-            if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
-                playerImage.Image = BotSettings.PLAYER_IMAGE;
-            if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
-                targetImage.Image = BotSettings.TARGET_IMAGE;
+            pickupTimesTextBox.Text = BotSettings.PICKUP_TIMES.ToString();
+            pickupDelayTextBox.Text = BotSettings.DELAY_BETWEEN_PICKUPS.ToString();
+            spoilTimesTextBox.Text = BotSettings.SPOIL_TIMES.ToString();
+            useSpoilCheckBox.Checked = BotSettings.USE_SPOIL;
+
         }
 
         void ConfigWasSaved()
@@ -236,96 +230,33 @@ namespace Shizui
         {
             // metodo que se ejecuta cada intervalo definido, sirve para actualizar todo lo que es UI y pertenece a esta clase.
 
-            int counter = 0;
-            int GCCleanInterval = BotSettings.UPDATE_INTERVAL * 30;
-
             while (true)
             {
-                if (!bot.botEnabled)
-                {
-                    imageManager.UpdateTargets();
-                }
-                Invoke((MethodInvoker)delegate
-                {
-                    hpPlayerLabel.Text = "HP: " + player.hp + "%";
-                    hpTargetLabel.Text = "HP: " + target.hp + "%";
-                });
 
-                counter += BotSettings.UPDATE_INTERVAL;
+                hpPlayerLabel.Invoke((MethodInvoker)(() => 
+                    hpPlayerLabel.Text = "HP: " + player.hp
+                ));
 
-                if (BotSettings.PLAYER_IMAGE != null && BotSettings.TARGET_IMAGE != null)
+                hpTargetLabel.Invoke((MethodInvoker)(() =>
+                hpTargetLabel.Text = "HP: " + target.hp
+                ));
+
+                if (!L2ProcessLoaded())
                 {
-                    Invoke((MethodInvoker)delegate
+                    LoadL2Process(0);
+                    Thread.Sleep(1000);
+                   
+                } else
+                {
+                    if (!bot.botEnabled)
                     {
-                        if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
-                            SetPlayerImage();
-                        if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
-                            SetTargetImage();
-                    });
+                        MemoryManager.Instance.GetPlayerHp();
+                        MemoryManager.Instance.GetTargetHp();
+                    }
                 }
 
-                if ((counter % GCCleanInterval) == 0)
-                {
-                    // ejecuto el colector de mugre cada updateinterval * 30
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                    counter = 0;
-                }
                 Thread.Sleep(BotSettings.UPDATE_INTERVAL);
             }
-        }
-
-        public void SetPlayerImage()
-        {
-            if (playerImage.Image != null)
-            {
-                playerImage.Image.Dispose();
-                BotSettings.LoadImageBars();
-            }
-
-            Bitmap bmp = BotSettings.PLAYER_IMAGE;
-            if (bmp == null)
-            {
-                ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
-                return;
-            }
-
-            playerPanel.Height = bmp.Height;
-            playerPanel.Width = bmp.Width;
-            playerStatsMarker.Width = bmp.Width;
-
-            playerImage.Height = bmp.Height;
-            playerImage.Width = bmp.Width;
-            playerImage.Top = 0;
-            playerImage.Left = 0;
-            playerImage.Image = bmp;
-        }
-
-        public void SetTargetImage()
-        {
-
-            if (targetImage.Image != null)
-            {
-                targetImage.Image.Dispose();
-                BotSettings.LoadImageBars();
-            }
-
-            Bitmap bmp = BotSettings.TARGET_IMAGE;
-            if (bmp == null)
-            {
-                ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
-                return;
-            }
-
-            targetPanel.Height = bmp.Height;
-            targetPanel.Width = bmp.Width;
-            targetStatsMarker.Width = bmp.Width;
-
-            targetImage.Height = bmp.Height;
-            targetImage.Width = bmp.Width;
-            targetImage.Top = 0;
-            targetImage.Left = 0;
-            targetImage.Image = bmp;
         }
 
         public void ConsoleWrite(string text)
@@ -350,47 +281,14 @@ namespace Shizui
             // TODO: setear colores
         }
 
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.A)
-            {
-                enterPressed = true;
-            }
-        }
-        private void PlayerButtonAreaConfig_Click(object sender, EventArgs e)
-        {
-            Thread th = new Thread(new ThreadStart(botConfiguration.StartPlayerAreaConfiguration));
-            th.Start();
-        }
-
-
-        private void TargetButtonAreaConfig_Click(object sender, EventArgs e)
-        {
-            Thread th = new Thread(new ThreadStart(botConfiguration.StartTargetAreaConfiguration));
-            th.Start();
-        }
 
         private void WindowVisibilityCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = !this.TopMost;
-            //botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            ChangeFormColor(Color.Red);
-            // Verifico si estan cargadas las imagenes del player y del target
-            if (!botConfiguration.playerRegionLoaded || !botConfiguration.targetRegionLoaded)
-            {
-                ConsoleWrite("Antes de iniciar hay que configurar el area del player y target.");
-                return;
-            }
-
-            if (!BotSettings.PLAYER_HP_BARSTART_INITIALIZED || !BotSettings.TARGET_HP_BARSTART_INITIALIZED)
-            {
-                ConsoleWrite("Antes de iniciar hay que configurar la zona del HP del player y del target.");
-                return;
-            } 
 
             if (bot.botEnabled)
             {
@@ -413,76 +311,6 @@ namespace Shizui
         public void ChangeFormColor(Color color)
         {
             this.BackColor = color;
-        }
-
-
-        private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            statsConfigButton.Enabled = true;
-        }
-
-        private void ZoneConfigButton_Click(object sender, EventArgs e)
-        {
-            // TODO: esto no sirve para cuando haya mas stats, cambiarlo.
-            if (zoneComboBox.SelectedItem.ToString() == "Target HP")
-            {
-                targetStatsMarker.Top = targetImage.Height / 2;
-                targetStatsMarker.Show();
-            } else
-            {
-                playerStatsMarker.Top = playerImage.Height / 2;
-                playerStatsMarker.Show();
-            }
-            statsSaveButton.Enabled = true;
-            statsCancelButton.Enabled = true;
-            zoneComboBox.Enabled = false; // deshabilito el combobox para que no estorbe al usar arriba y abajo
-            KeyDown += ConfigureStatRow;
-            ConsoleWrite("Move la barra celeste con las flecha arriba y abajo, poniendola encima del stat seleccionado.");
-        }
-
-
-        void ConfigureStatRow(object sender, KeyEventArgs e)
-        {
-            // funcion encargada de configurar la fila perteneciente al stat seleccionado
-            // en el combobox, por ej playerhp, playermp, etc.
-
-            if (e.KeyCode == Keys.Down) // bajo el marcador un pixel
-            {
-                playerStatsMarker.Top += 1;
-                targetStatsMarker.Top += 1;
-            }
-            else if (e.KeyCode == Keys.Up) // subo el marcador un pixel
-            {
-                playerStatsMarker.Top -= 1;
-                targetStatsMarker.Top -= 1;
-            }
-        }
-
-        private void StatsSaveButton_Click(object sender, EventArgs e)
-        {
-            // desactivo/activo botones relacionados con la zona
-            DisableStatsConfigurationZone();
-            // llamo al metodo encargado de configurar los limites.
-            botConfiguration.ConfigureBarBounds();
-
-            botConfiguration.SAVE_SETTINGS_TO_KYU();
-        }
-
-        private void StatsCancelButton_Click(object sender, EventArgs e)
-        {
-            DisableStatsConfigurationZone();
-
-        }
-
-        void DisableStatsConfigurationZone()
-        {
-            statsSaveButton.Enabled = false;
-            statsCancelButton.Enabled = false;
-            statsConfigButton.Enabled = true;
-            zoneComboBox.Enabled = true;
-            targetStatsMarker.Hide();
-            playerStatsMarker.Hide();
-            KeyDown -= ConfigureStatRow;
         }
 
         #region forms funcionamiento irrelevante
@@ -533,39 +361,6 @@ namespace Shizui
 
         #endregion
 
-        private void TabContainer_Selecting(object sender, TabControlCancelEventArgs e)
-        {
-            // agrego el form skillconfiguration al tabpage configTabPage.
-            if (e.TabPage.Name == skillConfigTabPage.Name)
-            {
-                if (skillConfigTabPage.Controls.Count == 0)
-                {
-                    Form f = new SkillConfiguration();
-                    f.TopLevel = false;
-                    f.FormBorderStyle = FormBorderStyle.None;
-                    f.Dock = DockStyle.Fill;
-                    skillConfigTabPage.Controls.Add(f);
-                    f.Show();
-                }
-            }
-            else if (e.TabPage.Name == targetConfigTabPage.Name)
-            {
-                if (targetConfigTabPage.Controls.Count == 0)
-                {
-                    Form f = new TargetConfiguration();
-                    f.TopLevel = false;
-                    f.FormBorderStyle = FormBorderStyle.None;
-                    f.Dock = DockStyle.Fill;
-                    targetConfigTabPage.Controls.Add(f);
-                    f.Show();
-                }
-            }
-        }
-
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void configLoadButton_Click(object sender, EventArgs e)
         {
@@ -589,95 +384,6 @@ namespace Shizui
 
         }
 
-        private void userNameTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
-        volatile bool selectingWindowMode = false;
-
-        private void button1_MouseDown(object sender, MouseEventArgs e)
-        {
-            Cursor.Current = Cursors.Cross;
-            selectingWindowMode = true;
-            Thread th = new Thread(new ThreadStart(DrawOnWindow));
-            th.Start();
-        }
-
-        [DllImport("User32.dll")]
-        static extern bool GetWindowRect(IntPtr hWnd, ref RECT rec);
-        [DllImport("User32.dll")]
-        static extern bool InvalidateRect(IntPtr hWnd, IntPtr a, bool bErase);
-
-        void DrawOnWindow()
-        {
-            RECT rect = new RECT();
-            IntPtr hwnd = IntPtr.Zero;
-
-            while (true)
-            {
-                Thread.Sleep(100);
-
-                if (selectingWindowMode)
-                {
-                    Point cursorPos = Cursor.Position;
-                    if (hwnd == WindowFromPoint(cursorPos)) continue;
-                    Invoke((MethodInvoker)delegate
-                    {
-                        InvalidateRect(hwnd, IntPtr.Zero, true); // invalido draws previos asi bien piola
-                        hwnd = WindowFromPoint(cursorPos);
-                        selectedWindowName.Text = GetWindowTitle(hwnd);
-                    });
-
-                    Debug.WriteLine(hwnd);
-
-                    Graphics graphics = Graphics.FromHwnd(hwnd);
-                    Pen pen = new Pen(Color.BlueViolet, 8);
-                    rect = new RECT();
-                    GetWindowRect(hwnd, ref rect);
-                    int width = Math.Abs(rect.Right - rect.Left);
-                    int height = Math.Abs(rect.Bottom - rect.Top);
-                    graphics.DrawRectangle(pen, 0, 0, width, height);
-
-                }
-                else break;
-            }
-        }
-
-        public struct RECT
-        {
-            public int Left;       
-            public int Top;        
-            public int Right;      
-            public int Bottom;     
-        }
-
-
-        private void button1_MouseUp(object sender, MouseEventArgs e)
-        {
-            InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
-            IntPtr hwnd = WindowFromPoint(Cursor.Position);
-            BotSettings.L2_PROCESS_HANDLE = hwnd;
-
-            var windowName = GetWindowTitle(hwnd);
-            selectedWindowName.Text = windowName;
-            selectingWindowMode = false;
-        }
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern int GetWindowTextLength(IntPtr hWnd);
-
-        public static string GetWindowTitle(IntPtr hWnd)
-        {
-            var length = GetWindowTextLength(hWnd) + 1;
-            var title = new StringBuilder(length);
-            GetWindowText(hWnd, title, length);
-            return title.ToString();
-        }
-
         private void asistCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             //ConsoleWrite("Clickea y mantene apretado el boton \"seleccionar target\" y solta en la barra de party del target a asistir.");
@@ -689,66 +395,125 @@ namespace Shizui
             BotSettings.ASSIST_MODE_ENABLED = assistCheckBoxValue;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void pickupTimesTextBox_TextChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void assistTargetSelectButton_MouseDown(object sender, MouseEventArgs e)
-        {
-            Cursor.Current = Cursors.Cross;
-            selectingWindowMode = true;
-        }
-
-        public int WM_NCHITTEST = 0x0084;
-        public int WM_SETCURSOR = 0x0020;
-        public int WM_LBUTTONDOWN = 0x0201;
-        public int WM_LBUTTONUP = 0x0202;
-        public int WM_NCACTIVATE = 0x0086;
-        public int WM_ACTIVATEAPP = 0x001C;
-        public int WM_SETFOCUS = 7;
-        public int WM_MOUSEACTIVATE = 0x0021;
-        public IntPtr CreateLParam(int LoWord, int HiWord)
-        {
-            return (IntPtr)((HiWord << 16) | (LoWord & 0xffff));
-        }
-
-        private void assistTargetSelectButton_MouseUp(object sender, MouseEventArgs e)
-        {
-            BotSettings.ASSIST_PLAYER_POS_X = e.X;
-            BotSettings.ASSIST_PLAYER_POS_Y = e.Y;
-            ConsoleWrite(BotSettings.ASSIST_PLAYER_POS_X.ToString() + " " + BotSettings.ASSIST_PLAYER_POS_Y.ToString());
-            selectingWindowMode = false;
-            
-            Thread.Sleep(1000);
-            int lparam = BotSettings.ASSIST_PLAYER_POS_X << 16;
-            ConsoleWrite(lparam.ToString());
-            lparam = lparam | BotSettings.ASSIST_PLAYER_POS_Y;
-            ConsoleWrite(lparam.ToString());
-
-            Point screenPoint = new Point(BotSettings.ASSIST_PLAYER_POS_X, BotSettings.ASSIST_PLAYER_POS_Y);
-            IntPtr handle = WindowFromPoint(screenPoint);
-            ConsoleWrite("handle: " + handle.ToString());
-            if (handle != IntPtr.Zero)
+            int times = BotSettings.PICKUP_TIMES;
+            try
             {
-                IntPtr result = IntPtr.Zero;
+                times = int.Parse(pickupTimesTextBox.Text);
+                if (times <= 0)
+                    times = 1;
+                BotSettings.PICKUP_TIMES = times;
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            }
+            catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros.");
+            }
+            pickupTimesTextBox.Text = times.ToString();
 
-                result = SendMessage((IntPtr)0x00140A74, WM_MOUSEACTIVATE, (IntPtr)0x00140A74, CreateLParam(1, WM_LBUTTONDOWN));
-                result = SendMessage((IntPtr)0x00140A74, WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
-                result = SendMessage((IntPtr)0x00140A74, WM_ACTIVATEAPP, (IntPtr)1, IntPtr.Zero);
-                result = SendMessage((IntPtr)0x00140A74, WM_NCACTIVATE, (IntPtr)1, IntPtr.Zero);
-                result = SendMessage((IntPtr)0x00140A74, 0x0006, (IntPtr)1, IntPtr.Zero);
+        }
+        private void pickupDelayTextBox_TextChanged(object sender, EventArgs e)
+        {
+            int delay = BotSettings.DELAY_BETWEEN_PICKUPS;
+            try
+            {
+                delay = int.Parse(pickupDelayTextBox.Text);
+                if (delay <= 0)
+                    delay = 50;
+                BotSettings.DELAY_BETWEEN_PICKUPS = delay;
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            }
+            catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros. El tiempo es en milisegundos");
+            }
+            pickupDelayTextBox.Text = delay.ToString();
 
-                Thread.Sleep(50);
-                SendMessage((IntPtr)0x00140A74, WM_NCHITTEST, IntPtr.Zero, CreateLParam(891, 1766));
-                Thread.Sleep(1000);
-                PostMessage((IntPtr)0x00140A74, WM_LBUTTONDOWN, (IntPtr)0x00000001, CreateLParam(807, 582));
+        }
 
-                SendMessage((IntPtr)0x00140A74, WM_NCHITTEST, IntPtr.Zero, CreateLParam(891, 1766));
-                Thread.Sleep(1000);
-                PostMessage((IntPtr)0x00140A74, WM_LBUTTONUP, (IntPtr)0x00000000, CreateLParam(807, 582));
+        private void useSpoilCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (useSpoilCheckBox.Checked)
+                spoilTimesTextBox.Enabled = true;
+            else
+                spoilTimesTextBox.Enabled = false;
+
+            BotSettings.USE_SPOIL = useSpoilCheckBox.Checked;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void spoilTimesTextBox_TextChanged(object sender, EventArgs e)
+        {
+            int times = BotSettings.SPOIL_TIMES;
+            try
+            {
+                times = int.Parse(spoilTimesTextBox.Text);
+                if (times <= 0)
+                    times = 1;
+                BotSettings.SPOIL_TIMES = times;
+                Bot.Instance.spoilTimes = times;
+
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            } catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros.");
+            }
+            spoilTimesTextBox.Text = times.ToString();
+        }
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        private void l2ProcessComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int l2ProcessIndex = l2ProcessComboBox.SelectedIndex;
+            if (l2ProcessIndex < 0) return;
+            LoadL2Process(l2ProcessIndex);
+        }
+
+        private void l2ProcessComboBox_Click(object sender, EventArgs e)
+        {
+            l2ProcessComboBox.Items.Clear();
+            Process[] l2processes = Process.GetProcessesByName("L2.bin");
+            if (l2processes.Length == 0)
+            {
+                l2ProcessComboBox.Items.Insert(0, "No hay l2 abierto");
 
             }
+            foreach (Process l2Process in l2processes)
+            {
+                int comboLen = l2ProcessComboBox.Items.Count;
+                l2ProcessComboBox.Items.Insert(comboLen, l2Process.ProcessName + ", ventana numero: " + comboLen.ToString());
+            }
+        }
+
+        void LoadL2Process(int l2ProcessIndex)
+        {
+            try
+            {
+                Process[] l2Processes = Process.GetProcessesByName("L2.bin");
+                if (l2Processes.Length == 0)
+                {
+                    Console.WriteLine("L2 not opened");
+                    return;
+                }
+                Process l2Process = l2Processes[l2ProcessIndex];
+                BotSettings.L2_PROCESS = l2Process;
+                BotSettings.L2_PROCESS_HANDLER = OpenProcess(0x001F0FFF, false, l2Process.Id);
+                BotSettings.L2_WINDOW_HANDLE = l2Process.MainWindowHandle;
+                MemoryManager.Instance.Run();
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        bool L2ProcessLoaded()
+        {
+            return 
+                BotSettings.L2_PROCESS_HANDLER != IntPtr.Zero && 
+                BotSettings.L2_PROCESS != null && 
+                BotSettings.L2_WINDOW_HANDLE != IntPtr.Zero;
         }
     }
 }

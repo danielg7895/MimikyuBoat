@@ -11,9 +11,6 @@ namespace Shizui
 
         public int hpBarStart;
 
-        public int? hpRow = null;
-        public int? mpRow = null;
-        public int? cpRow = null;
         public bool isDead = false;
 
         public string imagePath = "temp/target.jpeg";

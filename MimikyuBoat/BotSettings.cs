@@ -6,54 +6,38 @@ namespace Shizui
 {
     public class BotSettings
     {
-        // variables privadas
-
 
         // clase de variables estaticas que se usaran para guardar y cargar configuraciones.
 
         public static string KYU_FILE_PATH = "default.kyu";
         public static string KYU_FILE_DEFAULT_PATH = "default.kyu";
+        public static string USER_NAME = "default";
         public static string SKILL_XML_PATH = @"config/skills.xml";
-        public static IntPtr L2_PROCESS_HANDLE = IntPtr.Zero;
 
-        public static Rectangle PLAYER_CONFIGURATION_AREA;
-        public static Rectangle TARGET_CONFIGURATION_AREA;
+        // handler for send keystrokes
+        public static IntPtr L2_WINDOW_HANDLE = IntPtr.Zero;
+
+        // handler for read memory
+        public static IntPtr L2_PROCESS_HANDLER = IntPtr.Zero;
+        public static Process L2_PROCESS = null;
+
 
         public static string PLAYER_NICKNAME;
-        public static int PLAYER_CP_ZONE;
-        public static int PLAYER_HP_ZONE;
-        public static int PLAYER_MP_ZONE;
-        public static int TARGET_HP_ZONE;
-
-        public static int PLAYER_CP_BARSTART;
-        public static int PLAYER_HP_BARSTART;
-        public static int PLAYER_MP_BARSTART;
-        public static int TARGET_HP_BARSTART;
-
         public static bool AUTO_POT_ENABLED;
         public static int AUTO_POT_PERCENTAGE;
         public static bool RECOVER_MP_ENABLED;
         public static int MP_SIT_PERCENTAGE; 
         public static int MP_STAND_PERCENTAGE;
+        public static int PICKUP_TIMES;
+        public static int DELAY_BETWEEN_PICKUPS;
+        public static bool USE_SPOIL;
+        public static int SPOIL_TIMES;
 
         public static bool ALWAYS_ON_TOP;
         public static bool BOT_PAUSE_CP;
         public static int UPDATE_INTERVAL;
         public static bool ASSIST_MODE_ENABLED;
         public static string ASSIST_PLAYER_NICKNAME;
-        public static int ASSIST_PLAYER_POS_X;
-        public static int ASSIST_PLAYER_POS_Y;
-
-        public static bool PLAYER_CP_BARSTART_INITIALIZED;
-        public static bool PLAYER_HP_BARSTART_INITIALIZED;
-        public static bool PLAYER_MP_BARSTART_INITIALIZED;
-        public static bool TARGET_HP_BARSTART_INITIALIZED;
-        public static bool PLAYER_REGION_LOADED;
-        public static bool TARGET_REGION_LOADED;
-
-        // Variables que no se guardan, son de uso global
-        public static Bitmap PLAYER_IMAGE;
-        public static Bitmap TARGET_IMAGE;
 
 
         public static void Reload()
@@ -62,18 +46,9 @@ namespace Shizui
         }
         public static void Load()
         {
-            PLAYER_CONFIGURATION_AREA = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CONFIGURATION_AREA");
-            TARGET_CONFIGURATION_AREA = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("TARGET_CONFIGURATION_AREA");
-            PLAYER_NICKNAME = (string)XMLParser.GET_VALUE_FROM_KYU("PLAYER_NICKNAME");
-            PLAYER_CP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CP_ZONE");
-            PLAYER_HP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_ZONE");
-            PLAYER_MP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_MP_ZONE");
-            TARGET_HP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_ZONE");
 
-            PLAYER_CP_BARSTART = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CP_BARSTART");
-            PLAYER_HP_BARSTART = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_BARSTART");
-            PLAYER_MP_BARSTART = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_MP_BARSTART");
-            TARGET_HP_BARSTART = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_BARSTART");
+            PLAYER_NICKNAME = (string)XMLParser.GET_VALUE_FROM_KYU("PLAYER_NICKNAME");
+
             AUTO_POT_ENABLED = (bool)XMLParser.GET_VALUE_FROM_KYU("AUTO_POT_ENABLED");
             AUTO_POT_PERCENTAGE = (int)XMLParser.GET_VALUE_FROM_KYU("AUTO_POT_PERCENTAGE");
             RECOVER_MP_ENABLED = (bool)XMLParser.GET_VALUE_FROM_KYU("RECOVER_MP_ENABLED");
@@ -83,39 +58,12 @@ namespace Shizui
             BOT_PAUSE_CP = (bool)XMLParser.GET_VALUE_FROM_KYU("BOT_PAUSE_CP");
             UPDATE_INTERVAL = (int)XMLParser.GET_VALUE_FROM_KYU("UPDATE_INTERVAL");
 
-            PLAYER_CP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CP_BARSTART_INITIALIZED");
-            PLAYER_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_BARSTART_INITIALIZED");
-            PLAYER_MP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_MP_BARSTART_INITIALIZED");
-            TARGET_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_BARSTART_INITIALIZED");
-            //PLAYER_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_REGION_LOADED");
-            //TARGET_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_REGION_LOADED");
+            PICKUP_TIMES = (int)XMLParser.GET_VALUE_FROM_KYU("PICKUP_TIMES");
+            DELAY_BETWEEN_PICKUPS = (int)XMLParser.GET_VALUE_FROM_KYU("DELAY_BETWEEN_PICKUPS");
+            USE_SPOIL = (bool)XMLParser.GET_VALUE_FROM_KYU("USE_SPOIL");
+            SPOIL_TIMES = (int)XMLParser.GET_VALUE_FROM_KYU("SPOIL_TIMES");
 
-            #region CARGA DE VARIABLES QUE NO SE GUARDAN
-            LoadImageBars();
-
-            #endregion
         }
 
-        public static bool LoadImageBars()
-        {
-            try
-            {
-                // Para evitar tener problemas al borrar la imagen y crear una nueva 
-                // necesito disposear la imagen apenas la obtengo pero previamente clonandola.
-                Bitmap player_img = new Bitmap("temp/player.jpeg");
-                PLAYER_IMAGE = new Bitmap(player_img);
-                player_img.Dispose();
-
-                Bitmap target_img = new Bitmap("temp/target.jpeg");
-                TARGET_IMAGE = new Bitmap(target_img);
-                target_img.Dispose();
-            }
-            catch (ArgumentException)
-            {
-                Debug.WriteLine("La imagen del target o del player que se intenta acceder no existe");
-                return false;
-            }
-            return true;
-        }
     }
 }
