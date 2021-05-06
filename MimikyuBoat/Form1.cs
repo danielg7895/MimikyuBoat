@@ -6,11 +6,9 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System.IO;
-using System.Globalization;
 
 namespace Shizui
 {
-
     public partial class Form1 : Form
     {
         #region imports
@@ -44,7 +42,9 @@ namespace Shizui
         Player player;
         Target target;
         Thread thr;
+        Thread updateThread;
 
+        #region controls
         // Controls que son accedidos en botconfiguration.
         public string zoneComboBoxValue
         {
@@ -149,6 +149,7 @@ namespace Shizui
                 return assistCheckBox.Checked;
             }
         }
+        #endregion
 
         public static Form form;
         public Form1()
@@ -156,6 +157,23 @@ namespace Shizui
             InitializeComponent();
             this.Shown += new EventHandler(this.Form1_Shown);
             //Properties.Settings.Default.Reset();
+        }
+
+        public static void GlobalHandler(ThreadStart threadStartTarget)
+        {
+            try
+            {
+                threadStartTarget.Invoke();
+            }
+            catch (Exception e)
+            {
+                File.AppendAllText("log.txt", "StackTrace: " + e.StackTrace + Environment.NewLine);
+                File.AppendAllText("log.txt", "Message: " + e.Message + Environment.NewLine);
+                File.AppendAllText("log.txt", "Source: " + e.Source + Environment.NewLine);
+                File.AppendAllText("log.txt", "InnerException: " + e.InnerException + Environment.NewLine);
+                File.AppendAllText("log.txt", "Data: " + e.Data + Environment.NewLine);
+                MessageBox.Show("Ocurrio un error, guardado en el log.");
+            }
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -168,7 +186,7 @@ namespace Shizui
             target = Target.Instance;
 
             // Thread encargado de ejecutar el mainloop de bot.cs
-            thr = new Thread(bot.MainLoop);
+            thr = new Thread(o=> GlobalHandler(bot.MainLoop));
             thr.IsBackground = true;
 
             playerStatsMarker.Height = 1;
@@ -185,7 +203,7 @@ namespace Shizui
                 BotSettings.Load();
                 botConfiguration.UPDATE_APP_DATA();
 
-                Thread updateThread = new Thread(UpdateUI);
+                updateThread = new Thread(o=> GlobalHandler(UpdateUI));
                 updateThread.IsBackground = true;
                 updateThread.Start();
             } 
@@ -199,6 +217,7 @@ namespace Shizui
                     using (File.Create(direc));
                     botConfiguration.GENERATE_DEFAULT_CONFIG_FILE();
                     BotSettings.Load();
+                    botConfiguration.UPDATE_APP_DATA();
                     ConsoleWrite("Archivo generado correctamente.");
                 }
                 catch (Exception err)
@@ -211,6 +230,8 @@ namespace Shizui
         void ConfigWasLoaded()
         {
             // Metodo llamado una vez que la configuracion fue cargada.
+            this.Text = "Shizui - " + BotSettings.USER_NAME.ToUpper();
+            userNameTextBox.Text = BotSettings.USER_NAME.ToUpper();
             autoPotCheckBox.Checked = BotSettings.AUTO_POT_ENABLED;
             autoPotTextBox.Text = BotSettings.AUTO_POT_PERCENTAGE.ToString();
 
@@ -220,10 +241,27 @@ namespace Shizui
 
             updateIntervalUpDown.Value = BotSettings.UPDATE_INTERVAL;
 
-            if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
-                playerImage.Image = BotSettings.PLAYER_IMAGE;
-            if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
-                targetImage.Image = BotSettings.TARGET_IMAGE;
+            pickupTimesTextBox.Text = BotSettings.PICKUP_TIMES.ToString();
+            pickupDelayTextBox.Text = BotSettings.DELAY_BETWEEN_PICKUPS.ToString();
+            spoilTimesTextBox.Text = BotSettings.SPOIL_TIMES.ToString();
+            useSpoilCheckBox.Checked = BotSettings.USE_SPOIL;
+
+            playerTrackRed.Value = BotSettings.PLAYER_BAR_R;
+            playerTrackGreen.Value = BotSettings.PLAYER_BAR_G;
+            playerTrackBlue.Value = BotSettings.PLAYER_BAR_B;
+            playerTrackBrightness.Value = BotSettings.PLAYER_BAR_BRIGHTNESS;
+            playerTrackHue.Value = BotSettings.PLAYER_BAR_HUE;
+
+            targetTrackRed.Value = BotSettings.TARGET_BAR_R;
+            targetTrackBlue.Value = BotSettings.TARGET_BAR_G;
+            targetTrackGreen.Value = BotSettings.TARGET_BAR_B;
+            targetTrackBrightness.Value = BotSettings.TARGET_BAR_BRIGHTNESS;
+            targetTrackHue.Value = BotSettings.TARGET_BAR_HUE;
+
+            if (!BotSettings.PLAYER_CONFIGURATION_RECTANGLE.IsEmpty)
+                playerImage.Image = new Bitmap(BotSettings.PLAYER_IMAGE);
+            if (!BotSettings.TARGET_CONFIGURATION_RECTANGLE.IsEmpty)
+                targetImage.Image = new Bitmap(BotSettings.TARGET_IMAGE);
         }
 
         void ConfigWasSaved()
@@ -235,32 +273,44 @@ namespace Shizui
         public void UpdateUI()
         {
             // metodo que se ejecuta cada intervalo definido, sirve para actualizar todo lo que es UI y pertenece a esta clase.
-
+            
             int counter = 0;
             int GCCleanInterval = BotSettings.UPDATE_INTERVAL * 30;
 
             while (true)
             {
-                if (!bot.botEnabled)
+                if (!bot.botEnabled && BotSettings.L2_PROCESS_HANDLE != IntPtr.Zero)
                 {
-                    imageManager.UpdateTargets();
+                    if (!imageManager.UpdateTargets())
+                    {
+                        Thread.Sleep(200);
+                        continue;
+                    }
                 }
-                Invoke((MethodInvoker)delegate
-                {
-                    hpPlayerLabel.Text = "HP: " + player.hp + "%";
-                    hpTargetLabel.Text = "HP: " + target.hp + "%";
-                });
+
+                hpPlayerLabel.Invoke((MethodInvoker)(() => 
+                    hpPlayerLabel.Text = "HP: " + player.hp + "%"
+                ));
+
+                hpTargetLabel.Invoke((MethodInvoker)(() =>
+                hpTargetLabel.Text = "HP: " + target.hp + "%"
+                ));
+
 
                 counter += BotSettings.UPDATE_INTERVAL;
 
-                if (BotSettings.PLAYER_IMAGE != null && BotSettings.TARGET_IMAGE != null)
+                if (BotSettings.PLAYER_IMAGE != null && !BotSettings.PLAYER_CONFIGURATION_RECTANGLE.IsEmpty) {
+                    Invoke((MethodInvoker)delegate
+                    {
+                        SetPlayerImage();
+                    });
+                }
+                
+                if (BotSettings.TARGET_IMAGE != null && !BotSettings.TARGET_CONFIGURATION_RECTANGLE.IsEmpty)
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty)
-                            SetPlayerImage();
-                        if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty)
-                            SetTargetImage();
+                        SetTargetImage();
                     });
                 }
 
@@ -280,10 +330,12 @@ namespace Shizui
             if (playerImage.Image != null)
             {
                 playerImage.Image.Dispose();
+                playerImage.Image = null;
                 BotSettings.LoadImageBars();
             }
 
-            Bitmap bmp = BotSettings.PLAYER_IMAGE;
+            Bitmap bmp = new Bitmap(BotSettings.PLAYER_IMAGE);
+
             if (bmp == null)
             {
                 ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
@@ -307,10 +359,11 @@ namespace Shizui
             if (targetImage.Image != null)
             {
                 targetImage.Image.Dispose();
+                targetImage.Image = null;
                 BotSettings.LoadImageBars();
             }
 
-            Bitmap bmp = BotSettings.TARGET_IMAGE;
+            Bitmap bmp = new Bitmap(BotSettings.TARGET_IMAGE);
             if (bmp == null)
             {
                 ConsoleWrite("BMP ES NULL!!!!!!!!!! WTF !!!!");
@@ -359,13 +412,22 @@ namespace Shizui
         }
         private void PlayerButtonAreaConfig_Click(object sender, EventArgs e)
         {
+            if (BotSettings.L2_PROCESS_HANDLE == IntPtr.Zero)
+            {
+                MessageBox.Show("Selecciona el proceso del L2 antes de configurar el area");
+                return;
+            }
             Thread th = new Thread(new ThreadStart(botConfiguration.StartPlayerAreaConfiguration));
             th.Start();
         }
 
-
         private void TargetButtonAreaConfig_Click(object sender, EventArgs e)
         {
+            if (BotSettings.L2_PROCESS_HANDLE == IntPtr.Zero)
+            {
+                MessageBox.Show("Selecciona el proceso del L2 antes de configurar el area");
+                return;
+            }
             Thread th = new Thread(new ThreadStart(botConfiguration.StartTargetAreaConfiguration));
             th.Start();
         }
@@ -373,7 +435,6 @@ namespace Shizui
         private void WindowVisibilityCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             this.TopMost = !this.TopMost;
-            //botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
 
         private void StartButton_Click(object sender, EventArgs e)
@@ -446,12 +507,12 @@ namespace Shizui
             // funcion encargada de configurar la fila perteneciente al stat seleccionado
             // en el combobox, por ej playerhp, playermp, etc.
 
-            if (e.KeyCode == Keys.Down) // bajo el marcador un pixel
+            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.S) // bajo el marcador un pixel
             {
                 playerStatsMarker.Top += 1;
                 targetStatsMarker.Top += 1;
             }
-            else if (e.KeyCode == Keys.Up) // subo el marcador un pixel
+            else if (e.KeyCode == Keys.Up || e.KeyCode == Keys.W) // subo el marcador un pixel
             {
                 playerStatsMarker.Top -= 1;
                 targetStatsMarker.Top -= 1;
@@ -632,7 +693,7 @@ namespace Shizui
                     Debug.WriteLine(hwnd);
 
                     Graphics graphics = Graphics.FromHwnd(hwnd);
-                    Pen pen = new Pen(Color.BlueViolet, 8);
+                    Pen pen = new Pen(Color.DeepPink, 8);
                     rect = new RECT();
                     GetWindowRect(hwnd, ref rect);
                     int width = Math.Abs(rect.Right - rect.Left);
@@ -651,7 +712,6 @@ namespace Shizui
             public int Right;      
             public int Bottom;     
         }
-
 
         private void button1_MouseUp(object sender, MouseEventArgs e)
         {
@@ -749,6 +809,133 @@ namespace Shizui
                 PostMessage((IntPtr)0x00140A74, WM_LBUTTONUP, (IntPtr)0x00000000, CreateLParam(807, 582));
 
             }
+        }
+
+        private void pickupTimesTextBox_TextChanged(object sender, EventArgs e)
+        {
+            int times = BotSettings.PICKUP_TIMES;
+            try
+            {
+                times = int.Parse(pickupTimesTextBox.Text);
+                if (times <= 0)
+                    times = 1;
+                BotSettings.PICKUP_TIMES = times;
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            }
+            catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros.");
+            }
+            pickupTimesTextBox.Text = times.ToString();
+
+        }
+
+        private void pickupDelayTextBox_TextChanged(object sender, EventArgs e)
+        {
+            int delay = BotSettings.DELAY_BETWEEN_PICKUPS;
+            try
+            {
+                delay = int.Parse(pickupDelayTextBox.Text);
+                if (delay <= 0)
+                    delay = 50;
+                BotSettings.DELAY_BETWEEN_PICKUPS = delay;
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            }
+            catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros. El tiempo es en milisegundos");
+            }
+            pickupDelayTextBox.Text = delay.ToString();
+
+        }
+
+        private void useSpoilCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (useSpoilCheckBox.Checked)
+                spoilTimesTextBox.Enabled = true;
+            else
+                spoilTimesTextBox.Enabled = false;
+
+            BotSettings.USE_SPOIL = useSpoilCheckBox.Checked;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void spoilTimesTextBox_TextChanged(object sender, EventArgs e)
+        {
+            int times = BotSettings.SPOIL_TIMES;
+            try
+            {
+                times = int.Parse(spoilTimesTextBox.Text);
+                if (times <= 0)
+                    times = 1;
+                BotSettings.SPOIL_TIMES = times;
+                Bot.Instance.spoilTimes = times;
+
+                botConfiguration.SAVE_SETTINGS_TO_KYU();
+            } catch (Exception)
+            {
+                ConsoleWrite("Solo se aceptan numeros.");
+            }
+            spoilTimesTextBox.Text = times.ToString();
+        }
+
+        private void playerTrackRed_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.PLAYER_BAR_R = playerTrackRed.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void playerTrackGreen_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.PLAYER_BAR_G = playerTrackGreen.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void playerTrackBlue_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.PLAYER_BAR_B = playerTrackBlue.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void playerTrackBrightness_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.PLAYER_BAR_BRIGHTNESS = playerTrackBrightness.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void targetTrackRed_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.TARGET_BAR_R = targetTrackRed.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void targetTrackBlue_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.TARGET_BAR_B = targetTrackGreen.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+        private void playerTrackHue_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.PLAYER_BAR_HUE = playerTrackHue.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void targetTrackGreen_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.TARGET_BAR_G = targetTrackBlue.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void targetTrackBrightness_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.TARGET_BAR_BRIGHTNESS = targetTrackBrightness.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            BotSettings.TARGET_BAR_HUE = targetTrackHue.Value;
+            botConfiguration.SAVE_SETTINGS_TO_KYU();
         }
     }
 }

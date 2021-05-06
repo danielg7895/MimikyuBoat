@@ -235,7 +235,79 @@ namespace Shizui
             PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYUP, (uint)key, lparam);
         }
 
-        public void KeyDownPress(IntPtr processHandle, VirtualKey key, int timePress = 343)
+        public void LongPressButton(IntPtr processHandle, List<Dictionary<string, int>> listKeyData)
+        {
+            // Loopeo la lista y a medida que el reloj avanza voy apretando las keys en orden.
+            // Cada key tiene un tiempo de comienzo y un tiempo de final, el reloj coordina cuando
+            // se aprietan las keys y cuando se detienen.
+            // initialized funciona como marcador de cuando debe mandarse KeyPressUp y cuando KeyPressDown
+            // breakwhile se le suma 1 cuando termina una key de ser apretada,
+            // Cuando todas las keys de la lista suman 1 a breakwhile, significa q todas las keys fueron apretadas y hay que cortar el while.
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
+            int breakWhile = 0;
+            while (breakWhile != listKeyData.Count())
+            {
+                foreach (Dictionary<string, int> keyData in listKeyData)
+                {
+
+                    if (keyData["startAt"] <= watch.ElapsedMilliseconds && keyData["finished"] == 0)
+                    {
+                        PressKeyDown(processHandle, (VirtualKey)keyData["key"]);
+                    }
+
+                    if (keyData["endAt"] <= watch.ElapsedMilliseconds && keyData["finished"] == 0)
+                    {
+                        keyData["finished"] = 1;
+                        breakWhile ++;
+                        PressKeyUp(processHandle, (VirtualKey)keyData["key"]);
+                    }
+                }
+                Thread.Sleep(10);
+            }
+            watch.Stop();
+        }
+
+        public void LongPressButton2(VirtualKey key, int ms)
+        {
+            IntPtr hwnd = BotSettings.L2_PROCESS_HANDLE;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
+            PressKeyDown(hwnd, key);
+            while (watch.ElapsedMilliseconds < ms)
+            {
+                PressKeyDown(hwnd, key, true, 0);
+                Thread.Sleep(15);
+            }
+            PressKeyUp(hwnd, key);
+        }
+
+
+        public void PressKeyDown(IntPtr processHandle, VirtualKey key, bool fRepeat = false, int timePress = 100)
+        {
+            // fRepeat -> se coloca en uno cuando se mantiene apretada la key
+            // pero previamente debio haber sido enviada con fRepeat en 0
+            // fRepeat esta en bit 30. https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-keydown
+
+            char keyChar = (char)key; 
+            int scanCode = OemKeyScan(keyChar);
+            
+            uint lparam = 0;
+            uint scanCodeParam = (uint)scanCode << 16; // me corro 16 bits porque es la posicion del scanCode
+            uint keyRepeat = 1;
+            lparam = lparam | scanCodeParam | keyRepeat;
+            
+            if (fRepeat)
+                lparam = (1 << 30) | lparam;
+
+            PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYDOWN, (uint)key, lparam);
+            if (timePress > 0)
+                Thread.Sleep(timePress);
+        }
+
+        public void PressKeyUp(IntPtr processHandle, VirtualKey key)
         {
             // Convierto la key recibida a char para poder luego obtener su scancode!
             KeysConverter keysConverter = new KeysConverter();
@@ -250,15 +322,6 @@ namespace Shizui
             uint scanCodeParam = (uint)scanCode << 16; // me corro 16 bits porque es la posicion del scanCode
             uint keyRepeat = 1; // por defecto repito una vez!, no me corro porque son los primeros 16 bits
             lparam = lparam | scanCodeParam | keyRepeat;
-
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            while(true)
-            {
-
-                PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYDOWN, (uint)key, lparam);
-                Thread.Sleep(100);
-            }
 
             PostMessage(processHandle, (uint)KeyMessageCodes.WM_KEYUP, (uint)key, lparam);
         }

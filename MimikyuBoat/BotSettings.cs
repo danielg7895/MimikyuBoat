@@ -13,11 +13,13 @@ namespace Shizui
 
         public static string KYU_FILE_PATH = "default.kyu";
         public static string KYU_FILE_DEFAULT_PATH = "default.kyu";
+        public static string USER_NAME = "default";
         public static string SKILL_XML_PATH = @"config/skills.xml";
         public static IntPtr L2_PROCESS_HANDLE = IntPtr.Zero;
 
-        public static Rectangle PLAYER_CONFIGURATION_AREA;
-        public static Rectangle TARGET_CONFIGURATION_AREA;
+        // Las posiciones del rectangulo son relativas al cliente del l2, no a la screen
+        public static Rectangle PLAYER_CONFIGURATION_RECTANGLE;
+        public static Rectangle TARGET_CONFIGURATION_RECTANGLE;
 
         public static string PLAYER_NICKNAME;
         public static int PLAYER_CP_ZONE;
@@ -35,6 +37,10 @@ namespace Shizui
         public static bool RECOVER_MP_ENABLED;
         public static int MP_SIT_PERCENTAGE; 
         public static int MP_STAND_PERCENTAGE;
+        public static int PICKUP_TIMES;
+        public static int DELAY_BETWEEN_PICKUPS;
+        public static bool USE_SPOIL;
+        public static int SPOIL_TIMES;
 
         public static bool ALWAYS_ON_TOP;
         public static bool BOT_PAUSE_CP;
@@ -55,6 +61,18 @@ namespace Shizui
         public static Bitmap PLAYER_IMAGE;
         public static Bitmap TARGET_IMAGE;
 
+        public static int PLAYER_BAR_R;
+        public static int PLAYER_BAR_G;
+        public static int PLAYER_BAR_B;
+        public static int PLAYER_BAR_BRIGHTNESS;
+        public static int PLAYER_BAR_HUE;
+
+        public static int TARGET_BAR_R;
+        public static int TARGET_BAR_G;
+        public static int TARGET_BAR_B;
+        public static int TARGET_BAR_BRIGHTNESS;
+        public static int TARGET_BAR_HUE;
+
 
         public static void Reload()
         {
@@ -62,8 +80,8 @@ namespace Shizui
         }
         public static void Load()
         {
-            PLAYER_CONFIGURATION_AREA = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CONFIGURATION_AREA");
-            TARGET_CONFIGURATION_AREA = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("TARGET_CONFIGURATION_AREA");
+            PLAYER_CONFIGURATION_RECTANGLE = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CONFIGURATION_RECTANGLE");
+            TARGET_CONFIGURATION_RECTANGLE = (Rectangle)XMLParser.GET_VALUE_FROM_KYU("TARGET_CONFIGURATION_RECTANGLE");
             PLAYER_NICKNAME = (string)XMLParser.GET_VALUE_FROM_KYU("PLAYER_NICKNAME");
             PLAYER_CP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_CP_ZONE");
             PLAYER_HP_ZONE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_HP_ZONE");
@@ -89,6 +107,23 @@ namespace Shizui
             TARGET_HP_BARSTART_INITIALIZED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_HP_BARSTART_INITIALIZED");
             //PLAYER_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("PLAYER_REGION_LOADED");
             //TARGET_REGION_LOADED = (bool)XMLParser.GET_VALUE_FROM_KYU("TARGET_REGION_LOADED");
+
+            PICKUP_TIMES = (int)XMLParser.GET_VALUE_FROM_KYU("PICKUP_TIMES");
+            DELAY_BETWEEN_PICKUPS = (int)XMLParser.GET_VALUE_FROM_KYU("DELAY_BETWEEN_PICKUPS");
+            USE_SPOIL = (bool)XMLParser.GET_VALUE_FROM_KYU("USE_SPOIL");
+            SPOIL_TIMES = (int)XMLParser.GET_VALUE_FROM_KYU("SPOIL_TIMES");
+
+            PLAYER_BAR_R = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_BAR_R");
+            PLAYER_BAR_G = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_BAR_G");
+            PLAYER_BAR_B = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_BAR_B");
+            PLAYER_BAR_BRIGHTNESS = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_BAR_BRIGHTNESS");
+            PLAYER_BAR_HUE = (int)XMLParser.GET_VALUE_FROM_KYU("PLAYER_BAR_HUE");
+
+            TARGET_BAR_R = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_BAR_R");
+            TARGET_BAR_G = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_BAR_G");
+            TARGET_BAR_B = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_BAR_B");
+            TARGET_BAR_BRIGHTNESS = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_BAR_BRIGHTNESS");
+            TARGET_BAR_HUE = (int)XMLParser.GET_VALUE_FROM_KYU("TARGET_BAR_HUE");
 
             #region CARGA DE VARIABLES QUE NO SE GUARDAN
             LoadImageBars();

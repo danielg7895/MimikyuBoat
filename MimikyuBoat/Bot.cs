@@ -15,7 +15,11 @@ namespace Shizui
         // si estoy seleccionando el area del player o target
         public volatile int updateInterval = 1000;
         public bool botEnabled = false;
-        bool monsterDead = false;
+        public int spoilTimes = 1;
+        bool monsterAlive = false;
+
+        // si bicho sube hp, le sumo 1, si bicho baja hp, no sumo nada. si bicho muere, seteo a 0
+        int targetHPChangingRatio = 0; // no es un ratio pero we
 
         // private variables
         readonly Utils utils;
@@ -37,7 +41,7 @@ namespace Shizui
         VirtualKeyBoard.VirtualKey potion = VirtualKeyBoard.VirtualKey.VK_5;
 
         // Assist shortcuts
-        VirtualKeyBoard.VirtualKey assistTarget = VirtualKeyBoard.VirtualKey.VK_F9;
+        VirtualKeyBoard.VirtualKey targetPlayer = VirtualKeyBoard.VirtualKey.VK_F9;
         VirtualKeyBoard.VirtualKey assistAction = VirtualKeyBoard.VirtualKey.VK_F10;
 
         // Conditional shortcuts
@@ -87,13 +91,14 @@ namespace Shizui
             virtualKeyBoard = new VirtualKeyBoard();
         }
 
- 
+
         public void MainLoop()
         {
             // comienzo el bot, previamente ya se debio haber validado que toda la configuracion previa
             // este hecha.
             utils.ConsoleWrite("Comenzando a botear !");
             watch = new Stopwatch(); // comienzo el timer!
+            spoilTimes = BotSettings.SPOIL_TIMES;
 
             VirtualKeyBoard.VirtualKey[] targets = new VirtualKeyBoard.VirtualKey[5]
             {
@@ -112,9 +117,15 @@ namespace Shizui
                     Thread.Sleep(500);
                     continue;
                 }
-                // comienzo un timer para detectar cannot see target cuando la hp target no baja en un tiempo
-                // obtengo stats del player y del target reconociendo las imagenes
-                imageManager.UpdateTargets(); // actualizo imagen de target y de player
+                // Este sleep es para que espere un toque antes de sacar foto al rectangulo
+                // sino puede pasar que el bot mande la accion y por el delay no se vea reflejada
+                // al sacar la foto al rectangulo y tome que la target esta muerta cuando
+                // en realidad se targeteo un bicho nuevo, entrando en un bucle de no salir.
+                Thread.Sleep(1000);
+
+                if (!imageManager.UpdateTargets()) continue;
+
+                //utils.ConsoleWrite("NUEVO LOOP " + DateTime.Now.ToString());
 
                 // target muere, si bicho no esta en target del playertoassist entonces la siguiente
                 // foto que saca, es la del target al playertoassist
@@ -122,47 +133,69 @@ namespace Shizui
                 // eliminar Bmp.save
                 player.hp = imageRecognition.RecognizePlayerStat(player.hpRow);
                 target.hp = imageRecognition.RecognizeTargetHP();
-                if (monsterDead && target.hp > 0)
+                //utils.ConsoleWrite("target hp: " + target.hp.ToString() + ", monster alive? " + monsterAlive.ToString());
+                if (!monsterAlive && target.hp > 0)
                 {
-                    monsterDead = false;
+                    monsterAlive = true;
                 }
 
-                if (!monsterDead || !BotSettings.ASSIST_MODE_ENABLED)
+                if (monsterAlive || !BotSettings.ASSIST_MODE_ENABLED)
                 {
-                    if (AttackTimeOver())
+                    // Verifico si la target hp va subiendo y bajando su vida
+                    // esto pasa veces cuando el rectangulo q se saca foto es en una area
+                    // rojiza movediza, suele pasar cuando el rectangulo esta en un arbol
+                    // que se mueve en un atardecer y la hp del target va variando dejando el pj quieto
+                    // por que piensa que le esta dando a un bicho.
+                    targetHPChangingRatio += target.hp > previousTargetHP ? 1 : 0;
+
+                    if (AttackTimeOver() || targetHPChangingRatio > 4)
                     {
                         TryEscapeCannotSeeTarget();
                         currentTarget = targets[totalTargets % targets.Length];
                         totalTargets++;
+                        targetHPChangingRatio = 0;
+                        watch.Restart();
                     }
 
-                    if(player.hp < 80)
+                    if (player.hp < 80)
                     {
                         utils.ConsoleWrite("Player HP baja, usando pocion!");
                         UsePotion();
                     }
 
-                    if (target.hp <= 80 && target.hp >= 50)
+                    if (BotSettings.USE_SPOIL && spoilTimes > 0 && target.hp <= 90)
                     {
+                        // target hp <= 90 porque sino va a intentar usar spoil mientras camina hacia el bicho
                         UseShortCut(spoil);
+                        spoilTimes--;
+                        if (spoilTimes > 0)
+                            Thread.Sleep(2500); // simulando el tiempo que demora en castear spoil + delay
                     }
 
                     // TODO: si no hay target > buscar target
                     if (target.hp <= 0)
                     {
-                        Thread.Sleep(300);
+                        monsterAlive = false;
+                        spoilTimes = BotSettings.SPOIL_TIMES;
+                        targetHPChangingRatio = 0;
 
-                        utils.ConsoleWrite("Usando Sweeper...");
-                        UseShortCut(sweep);
-                        Thread.Sleep(300);
+                        if (BotSettings.USE_SPOIL)
+                        {
+                            Thread.Sleep(300);
+                            utils.ConsoleWrite("Utilizando key -> 3");
+                            UseShortCut(sweep);
+                            Thread.Sleep(200);
+                        }
+                        // destargeteo.
+                        UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
 
                         // intento pickear
-                        UseShortCut(key: pickup, repeat: 4, delayPerAction: 100);
+                        UseShortCut(key: pickup, repeat: BotSettings.PICKUP_TIMES, delayPerAction: BotSettings.DELAY_BETWEEN_PICKUPS);
 
                         if (BotSettings.ASSIST_MODE_ENABLED)
                         {
                             utils.ConsoleWrite("Target Muerto, asistiendo...");
-                            UseShortCut(assistTarget, repeat: 1, delayPerAction: 100);
+                            UseShortCut(targetPlayer, repeat: 1, delayPerAction: 100);
                         }
                         else
                         {
@@ -171,24 +204,33 @@ namespace Shizui
                             currentTarget = targets[totalTargets % targets.Length];
                             totalTargets++;
                         }
-                        monsterDead = true;
                     }
                     if (BotSettings.ASSIST_MODE_ENABLED)
                     {
+                        //utils.ConsoleWrite("TARGETEANDO -> ASISTIENDO -> ATACANDO!");
 
-                        UseShortCut(assistTarget, repeat: 1, delayPerAction: 100);
+                        UseShortCut(targetPlayer, repeat: 1, delayPerAction: 100);
+                        Thread.Sleep(700);
                         UseShortCut(assistAction, 1, 100);
-                        //Thread.Sleep(1000);
-                        UseShortCut(attack, 2, 100);
+                        Thread.Sleep(700);
+
+                        UseShortCut(attack, 1, 100);
                     } else
                     {
                         UseShortCut(currentTarget);
                     }
-                    Thread.Sleep(1000);
 
                     previousTargetHP = (int)target.hp;
                 } else
                 {
+                    if (BotSettings.ASSIST_MODE_ENABLED)
+                    {
+                        UseShortCut(targetPlayer, repeat: 1, delayPerAction: 100);
+                        Thread.Sleep(700);
+                        UseShortCut(assistAction, 1, 100);
+                        Thread.Sleep(700);
+                        UseShortCut(attack, 1, 100);
+                    }
                     watch.Restart();
                 }
 
@@ -198,8 +240,6 @@ namespace Shizui
 
         void UsePotion()
         {
-            virtualKeyBoard.ActivateWindow(BotSettings.L2_PROCESS_HANDLE);
-
             virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, potion, new Random().Next(1000, 3000));
 
         }
@@ -207,7 +247,8 @@ namespace Shizui
         bool AttackTimeOver()
         {
 
-            if (watch.ElapsedMilliseconds > 20000 && previousTargetHP == target.hp || watch.ElapsedMilliseconds > (60000 * 10))
+            if (watch.ElapsedMilliseconds > 20000 && previousTargetHP == target.hp 
+                || watch.ElapsedMilliseconds > (60000 * 10))
             {
                 watch.Restart();
                 return true;
@@ -223,24 +264,61 @@ namespace Shizui
         public void TryEscapeCannotSeeTarget()
         {
             utils.ConsoleWrite("Cannot see target?? intentando salir...");
-            virtualKeyBoard.ActivateWindow(BotSettings.L2_PROCESS_HANDLE);
-            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
-            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
-
+            IntPtr hwnd = BotSettings.L2_PROCESS_HANDLE;
             int num = new Random().Next(0, 2);
+            //virtualKeyBoard.ActivateWindow(BotSettings.L2_PROCESS_HANDLE);
+            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
+            UseShortCut(VirtualKeyBoard.VirtualKey.VK_ESCAPE);
 
-            virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_S, new Random().Next(500, 2000));
-            if(num == 0)
+            //// classic 2.0
+            //int s_endAt = new Random().Next(3000, 5000);
+            //int d_endAt = new Random().Next(3000, 7000);
+
+            //Dictionary<string, int> S_TIMES = new Dictionary<string, int>(){
+            //    {"key", (int)VirtualKeyBoard.VirtualKey.VK_S},
+            //    {"startAt", 0}, // comienzo a apretar S al segundo 0
+            //    {"endAt", s_endAt},
+            //    {"finished", 0 }
+            //};
+
+            //Dictionary<string, int> D_TIMES = new Dictionary<string, int>(){
+            //    {"key", (int)VirtualKeyBoard.VirtualKey.VK_D},
+            //    {"startAt", 1500},
+            //    {"endAt", d_endAt},
+            //    {"finished", 0 }
+            //};
+
+            //Dictionary<string, int> W_TIMES = new Dictionary<string, int>(){
+            //    {"key", (int)VirtualKeyBoard.VirtualKey.VK_W},
+            //    {"startAt", s_endAt},
+            //    {"endAt", new Random().Next(1000, 4000)},
+            //    {"finished", 0 }
+            //};
+
+            //Dictionary<string, int> A_TIMES = new Dictionary<string, int>(){
+            //    {"key", (int)VirtualKeyBoard.VirtualKey.VK_A},
+            //    {"startAt", 1500},
+            //    {"endAt", d_endAt},
+            //    {"finished", 0 }
+            //};
+
+            if (num == 0)
             {
-                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_A, new Random().Next(500, 3000));
-                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_W, new Random().Next(500, 3000));
+                //List<Dictionary<string, int>> d_list = new List<Dictionary<string, int>>() { S_TIMES, D_TIMES, W_TIMES };
+                //virtualKeyBoard.LongPressButton(hwnd, d_list);
+
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_S, 3500);
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_D, 2000);
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_S, 3500);
             }
             else
             {
-                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_D, new Random().Next(500, 2000));
-                virtualKeyBoard.SendKeyToProcess(BotSettings.L2_PROCESS_HANDLE, VirtualKeyBoard.VirtualKey.VK_S, new Random().Next(500, 3000));
+                //List<Dictionary<string, int>> a_list = new List<Dictionary<string, int>>() { S_TIMES, A_TIMES, W_TIMES };
+                //virtualKeyBoard.LongPressButton(hwnd, a_list);
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_S, 3500);
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_A, 2000);
+                virtualKeyBoard.LongPressButton2(VirtualKeyBoard.VirtualKey.VK_S, 3500);
             }
-
         }
 
         public void UseShortCut(VirtualKeyBoard.VirtualKey key, int repeat = 1, int delayPerAction = 23)

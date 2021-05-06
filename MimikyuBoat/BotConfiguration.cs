@@ -43,13 +43,20 @@ namespace Shizui
 
         public void StartPlayerAreaConfiguration()
         {
+            int widthScreen = Screen.PrimaryScreen.Bounds.Width;
+            int heightScreen = Screen.PrimaryScreen.Bounds.Height;
+
             // TODO: verificar previamente si ya hay una area del player guardada
             form1.ConsoleWrite("Pone el cursor en la esquina superior donde esta la vida de tu pj y apreta A.");
             while (!form1.enterPressed)
             {
                 Thread.Sleep(200);
             }
+            Rectangle rect = imageManager.GetProcessRectangle();
+
             Point startPos = imageManager.GetCursorPosition();
+            startPos.X -= rect.X;
+            startPos.Y -= rect.Top;
             form1.enterPressed = false;
 
             form1.ConsoleWrite("Pone el cursor en la esquina inferior donde esta la vida de tu pj y apreta A.");
@@ -58,13 +65,13 @@ namespace Shizui
                 Thread.Sleep(200);
             }
             Point endPos = imageManager.GetCursorPosition();
+            endPos.X -= rect.X;
+            endPos.Y -= rect.Top;
             form1.enterPressed = false;
 
-            Debug.WriteLine(startPos);
-            Debug.WriteLine(endPos);
-
             Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            BotSettings.PLAYER_CONFIGURATION_AREA = new Rectangle(startPos, rectSize);
+
+            BotSettings.PLAYER_CONFIGURATION_RECTANGLE = new Rectangle(startPos, rectSize);
 
             // seteo como que la region del player ya esta cargada para poder comenzar el update.
             playerRegionLoaded = true;
@@ -82,7 +89,11 @@ namespace Shizui
                 Thread.Sleep(200);
             }
             form1.enterPressed = false;
+            Rectangle rect = imageManager.GetProcessRectangle();
+
             Point startPos = imageManager.GetCursorPosition();
+            startPos.X -= rect.X;
+            startPos.Y -= rect.Top;
 
             form1.ConsoleWrite("Pone el cursor en la esquina inferior donde esta la vida del target y apreta A.");
             while (!form1.enterPressed)
@@ -91,12 +102,14 @@ namespace Shizui
             }
             form1.enterPressed = false;
             Point endPos = imageManager.GetCursorPosition();
+            endPos.X -= rect.X;
+            endPos.Y -= rect.Top;
 
             Debug.WriteLine(startPos);
             Debug.WriteLine(endPos);
 
             Size rectSize = new Size(Math.Abs(startPos.X - endPos.X), Math.Abs(startPos.Y - endPos.Y));
-            BotSettings.TARGET_CONFIGURATION_AREA = new Rectangle(startPos, rectSize);
+            BotSettings.TARGET_CONFIGURATION_RECTANGLE = new Rectangle(startPos, rectSize);
 
             // seteo como que la region del player ya esta cargada para poder comenzar el update.
             targetRegionLoaded = true;
@@ -166,9 +179,9 @@ namespace Shizui
                 player.mpRow =      BotSettings.PLAYER_MP_ZONE;
                 target.hpRow =      BotSettings.TARGET_HP_ZONE;
             
-                if (!BotSettings.PLAYER_CONFIGURATION_AREA.IsEmpty) playerRegionLoaded = true;
+                if (!BotSettings.PLAYER_CONFIGURATION_RECTANGLE.IsEmpty) playerRegionLoaded = true;
             
-                if (!BotSettings.TARGET_CONFIGURATION_AREA.IsEmpty) targetRegionLoaded = true;
+                if (!BotSettings.TARGET_CONFIGURATION_RECTANGLE.IsEmpty) targetRegionLoaded = true;
             
                 // Para el caso de variables donde se accede directamente desde botsettings las seteo asi
                 // esto es un poco confuso asique debe ser cambiado.
@@ -209,8 +222,8 @@ namespace Shizui
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_ZONE", player.mpRow);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_ZONE", target.hpRow);
 
-            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_AREA", BotSettings.PLAYER_CONFIGURATION_AREA);
-            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_AREA", BotSettings.TARGET_CONFIGURATION_AREA);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_RECTANGLE", BotSettings.PLAYER_CONFIGURATION_RECTANGLE);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_RECTANGLE", BotSettings.TARGET_CONFIGURATION_RECTANGLE);
 
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_ENABLED", form1.autoPotCheckBoxValue);
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_PERCENTAGE", form1.autoPotTextBoxValue);
@@ -224,6 +237,25 @@ namespace Shizui
             xmlParser.SET_VALUE_TO_KYU("PLAYER_HP_BARSTART_INITIALIZED", BotSettings.PLAYER_HP_BARSTART_INITIALIZED);
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_BARSTART_INITIALIZED", BotSettings.PLAYER_MP_BARSTART_INITIALIZED);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_BARSTART_INITIALIZED", BotSettings.TARGET_HP_BARSTART_INITIALIZED);
+
+            xmlParser.SET_VALUE_TO_KYU("PICKUP_TIMES", BotSettings.PICKUP_TIMES);
+            xmlParser.SET_VALUE_TO_KYU("DELAY_BETWEEN_PICKUPS", BotSettings.DELAY_BETWEEN_PICKUPS);
+            xmlParser.SET_VALUE_TO_KYU("USE_SPOIL", BotSettings.USE_SPOIL);
+            xmlParser.SET_VALUE_TO_KYU("SPOIL_TIMES", BotSettings.SPOIL_TIMES);
+
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_R", BotSettings.PLAYER_BAR_R);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_G", BotSettings.PLAYER_BAR_G);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_B", BotSettings.PLAYER_BAR_B);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_BRIGHTNESS", BotSettings.PLAYER_BAR_BRIGHTNESS);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_HUE", BotSettings.PLAYER_BAR_HUE);
+
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_R", BotSettings.TARGET_BAR_R);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_G", BotSettings.TARGET_BAR_G);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_B", BotSettings.TARGET_BAR_B);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_BRIGHTNESS", BotSettings.TARGET_BAR_BRIGHTNESS);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_HUE", BotSettings.TARGET_BAR_HUE);
+
+
 
             // chekeo si hay skils pa guarda
             foreach (Skill skill in player.GetSkills())
@@ -251,8 +283,8 @@ namespace Shizui
             xmlParser.SET_VALUE_TO_KYU("PLAYER_MP_ZONE", -1);
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_ZONE", -1);
 
-            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_AREA", new Rectangle(0, 0, 0, 0));
-            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_AREA", new Rectangle(0, 0, 0, 0));
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_CONFIGURATION_RECTANGLE", new Rectangle(0, 0, 0, 0));
+            xmlParser.SET_VALUE_TO_KYU("TARGET_CONFIGURATION_RECTANGLE", new Rectangle(0, 0, 0, 0));
 
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_ENABLED", false);
             xmlParser.SET_VALUE_TO_KYU("AUTO_POT_PERCENTAGE", -1);
@@ -268,6 +300,24 @@ namespace Shizui
             xmlParser.SET_VALUE_TO_KYU("TARGET_HP_BARSTART_INITIALIZED", false);
             xmlParser.SET_VALUE_TO_KYU("ALWAYS_ON_TOP", form1.alwaysOnTopValue);
             xmlParser.SET_VALUE_TO_KYU("ASSIST_MODE_ENABLED", false);
+
+            xmlParser.SET_VALUE_TO_KYU("PICKUP_TIMES", 4);
+            xmlParser.SET_VALUE_TO_KYU("DELAY_BETWEEN_PICKUPS", 200);
+            xmlParser.SET_VALUE_TO_KYU("USE_SPOIL", false);
+            xmlParser.SET_VALUE_TO_KYU("SPOIL_TIMES", 1);
+
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_R", 0);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_B", 0);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_G", 0);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_BRIGHTNESS", 0);
+            xmlParser.SET_VALUE_TO_KYU("PLAYER_BAR_HUE", 0);
+
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_R", 0);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_B", 0);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_G", 0);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_BRIGHTNESS", BotSettings.TARGET_BAR_BRIGHTNESS);
+            xmlParser.SET_VALUE_TO_KYU("TARGET_BAR_HUE", 0);
+
 
         }
 
@@ -296,6 +346,7 @@ namespace Shizui
                         {
                             // Archivo abierto, cargo la configuracion del usuario.
                             BotSettings.KYU_FILE_PATH = fileDialog.FileName;
+                            BotSettings.USER_NAME = Path.GetFileNameWithoutExtension(fileDialog.FileName);
                             Debug.WriteLine("kyu file path ahora es: " + BotSettings.KYU_FILE_PATH);
                         }
                     }
@@ -305,6 +356,7 @@ namespace Shizui
                     }
                 }
             }
+
             BotSettings.Reload();
             UPDATE_APP_DATA();
         }
@@ -349,6 +401,7 @@ namespace Shizui
                         SAVE_SETTINGS_TO_KYU();
                     }
                     BotSettings.KYU_FILE_PATH = filePath;
+                    BotSettings.USER_NAME = Path.GetFileNameWithoutExtension(filePath);
 
                     // recargo todos los datos del archivo y luego los datos de la app
                     BotSettings.Reload();

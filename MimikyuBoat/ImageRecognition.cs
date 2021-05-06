@@ -40,9 +40,6 @@ namespace Shizui
 
         public int RecognizePlayerStat(int statRow)
         {
-            // hago una copia del bitmap porq puede suceder que justo cuando toco el bitmap de botsettings,
-            // en alguna parte se cambie el bitmap de bottsetings y eso generaria un error
-            // de que esta en uso
             Bitmap bmp = new Bitmap(BotSettings.PLAYER_IMAGE);
             if (bmp == null) return 0;
 
@@ -93,7 +90,7 @@ namespace Shizui
             int realIndex = index + (int)Player.Instance.hpBarStart;
             if (bmp.Width-1 == realIndex)
             {
-                Debug.WriteLine("Ultimo Pixel es negro!");
+                //Debug.WriteLine("Ultimo Pixel es negro!");
                 return true;
             }
 
@@ -110,7 +107,7 @@ namespace Shizui
                     }
                 }
             }
-            Debug.WriteLine("Vecinos son negros" + realIndex.ToString());
+            //Debug.WriteLine("Vecinos son negros" + realIndex.ToString());
             return true;
         }
 
@@ -123,10 +120,7 @@ namespace Shizui
         {
             Bitmap bmp = new Bitmap(BotSettings.TARGET_IMAGE);
             if (bmp == null)
-            {
-                Debug.WriteLine("yep nul");
                 return 0;
-            }
 
 
             int targetBarStart = (int)Target.Instance.hpBarStart;
@@ -174,14 +168,12 @@ namespace Shizui
             // intenta obtener en que pixel comienza la barrita del stat (hp,mp,cp, hp target)
             // esta funcion falla si el primer pixel es blanco.
 
+            if(statRow > bmp.Height) return -1;   
+            
             for (int i = 0; i < bmp.Width; i++)
             {
                 // si cualquier valor de rgb es 255 significa que el pixel es blanco
                 // porque previamente la imagen ya se hizo monocromatica
-                if(statRow > bmp.Height)
-                {
-                    return -1;   
-                }
                 if (bmp.GetPixel(i, statRow).R >= 200)
                 {
                     return i;

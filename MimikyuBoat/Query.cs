@@ -127,7 +127,7 @@ namespace Shizui
 
                 try
                 {
-                    ordererListSkill[index].Add(skill.Key, skill.Value);
+                 ordererListSkill[index].Add(skill.Key, skill.Value);
                 } catch(IndexOutOfRangeException e)
                 {
                     MessageBox.Show("Error al ordenar la lista de query, Error msj: " + e.Message + ". StackTrace: " + e.StackTrace);

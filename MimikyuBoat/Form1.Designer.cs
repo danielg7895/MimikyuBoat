@@ -42,28 +42,53 @@
             this.startButton = new System.Windows.Forms.Button();
             this.consoleDebugTextBox = new System.Windows.Forms.TextBox();
             this.containerPanel = new System.Windows.Forms.Panel();
-            this.hpTargetLabel = new System.Windows.Forms.Label();
-            this.hpPlayerLabel = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.assistTargetSelectButton = new System.Windows.Forms.Button();
-            this.assistCheckBox = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.label20 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.hpTargetLabel = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.assistTargetSelectButton = new System.Windows.Forms.Button();
+            this.label23 = new System.Windows.Forms.Label();
+            this.hpPlayerLabel = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.useSpoilCheckBox = new System.Windows.Forms.CheckBox();
+            this.spoilTimesTextBox = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.pickupDelayTextBox = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.pickupTimesTextBox = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.assistCheckBox = new System.Windows.Forms.CheckBox();
+            this.targetTrackBrightness = new System.Windows.Forms.TrackBar();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label14 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.targetTrackBlue = new System.Windows.Forms.TrackBar();
             this.statsConfigButton = new System.Windows.Forms.Button();
+            this.targetTrackGreen = new System.Windows.Forms.TrackBar();
             this.statsConfigLabel = new System.Windows.Forms.Label();
+            this.targetTrackRed = new System.Windows.Forms.TrackBar();
+            this.label19 = new System.Windows.Forms.Label();
             this.statsSaveButton = new System.Windows.Forms.Button();
+            this.label18 = new System.Windows.Forms.Label();
             this.statsCancelButton = new System.Windows.Forms.Button();
+            this.label25 = new System.Windows.Forms.Label();
             this.zoneComboBox = new System.Windows.Forms.ComboBox();
+            this.label26 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.playerTrackBrightness = new System.Windows.Forms.TrackBar();
             this.alwaysOnTopCheckBox = new System.Windows.Forms.CheckBox();
+            this.playerTrackBlue = new System.Windows.Forms.TrackBar();
+            this.playerTrackGreen = new System.Windows.Forms.TrackBar();
+            this.playerTrackRed = new System.Windows.Forms.TrackBar();
             this.TabContainer = new System.Windows.Forms.TabControl();
             this.botTabPage = new System.Windows.Forms.TabPage();
             this.botConfigTabPanel = new System.Windows.Forms.TabPage();
@@ -91,6 +116,10 @@
             this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
             this.skillConfigTabPage = new System.Windows.Forms.TabPage();
             this.targetConfigTabPage = new System.Windows.Forms.TabPage();
+            this.label28 = new System.Windows.Forms.Label();
+            this.playerTrackHue = new System.Windows.Forms.TrackBar();
+            this.label29 = new System.Windows.Forms.Label();
+            this.targetTrackHue = new System.Windows.Forms.TrackBar();
             this.playerPanelContainer.SuspendLayout();
             this.playerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.playerImage)).BeginInit();
@@ -99,7 +128,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.targetImage)).BeginInit();
             this.containerPanel.SuspendLayout();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackBrightness)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackBlue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackGreen)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackRed)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackBrightness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackBlue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackGreen)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackRed)).BeginInit();
             this.TabContainer.SuspendLayout();
             this.botTabPage.SuspendLayout();
             this.botConfigTabPanel.SuspendLayout();
@@ -107,6 +144,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.updateIntervalUpDown)).BeginInit();
             this.panel10.SuspendLayout();
             this.panel11.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackHue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackHue)).BeginInit();
             this.SuspendLayout();
             // 
             // playerPanelContainer
@@ -243,20 +282,44 @@
             // containerPanel
             // 
             this.containerPanel.BackColor = System.Drawing.Color.White;
+            this.containerPanel.Controls.Add(this.label29);
+            this.containerPanel.Controls.Add(this.targetTrackHue);
+            this.containerPanel.Controls.Add(this.label28);
+            this.containerPanel.Controls.Add(this.playerTrackHue);
+            this.containerPanel.Controls.Add(this.label20);
+            this.containerPanel.Controls.Add(this.label10);
+            this.containerPanel.Controls.Add(this.label21);
             this.containerPanel.Controls.Add(this.hpTargetLabel);
+            this.containerPanel.Controls.Add(this.label22);
+            this.containerPanel.Controls.Add(this.assistTargetSelectButton);
+            this.containerPanel.Controls.Add(this.label23);
             this.containerPanel.Controls.Add(this.hpPlayerLabel);
+            this.containerPanel.Controls.Add(this.label24);
             this.containerPanel.Controls.Add(this.panel2);
+            this.containerPanel.Controls.Add(this.targetTrackBrightness);
             this.containerPanel.Controls.Add(this.panel1);
+            this.containerPanel.Controls.Add(this.targetTrackBlue);
             this.containerPanel.Controls.Add(this.statsConfigButton);
+            this.containerPanel.Controls.Add(this.targetTrackGreen);
             this.containerPanel.Controls.Add(this.statsConfigLabel);
+            this.containerPanel.Controls.Add(this.targetTrackRed);
+            this.containerPanel.Controls.Add(this.label19);
             this.containerPanel.Controls.Add(this.statsSaveButton);
+            this.containerPanel.Controls.Add(this.label18);
             this.containerPanel.Controls.Add(this.statsCancelButton);
+            this.containerPanel.Controls.Add(this.label25);
             this.containerPanel.Controls.Add(this.zoneComboBox);
+            this.containerPanel.Controls.Add(this.label26);
             this.containerPanel.Controls.Add(this.label4);
+            this.containerPanel.Controls.Add(this.label27);
             this.containerPanel.Controls.Add(this.label5);
+            this.containerPanel.Controls.Add(this.playerTrackBrightness);
             this.containerPanel.Controls.Add(this.alwaysOnTopCheckBox);
+            this.containerPanel.Controls.Add(this.playerTrackBlue);
             this.containerPanel.Controls.Add(this.playerPanelContainer);
+            this.containerPanel.Controls.Add(this.playerTrackGreen);
             this.containerPanel.Controls.Add(this.playerButtonAreaConfig);
+            this.containerPanel.Controls.Add(this.playerTrackRed);
             this.containerPanel.Controls.Add(this.consoleDebugTextBox);
             this.containerPanel.Controls.Add(this.targetPanelContainer);
             this.containerPanel.Controls.Add(this.startButton);
@@ -265,6 +328,34 @@
             this.containerPanel.Name = "containerPanel";
             this.containerPanel.Size = new System.Drawing.Size(665, 603);
             this.containerPanel.TabIndex = 9;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(328, 139);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(52, 12);
+            this.label20.TabIndex = 69;
+            this.label20.Text = "TARGET:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.label10.Location = new System.Drawing.Point(10, 177);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(55, 13);
+            this.label10.TabIndex = 34;
+            this.label10.Text = "Shortcuts:";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(348, 312);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(76, 12);
+            this.label21.TabIndex = 68;
+            this.label21.Text = "BRIGHTNESS";
             // 
             // hpTargetLabel
             // 
@@ -278,6 +369,38 @@
             this.hpTargetLabel.TabIndex = 33;
             this.hpTargetLabel.Text = "HP: 0%";
             // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(370, 260);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(34, 12);
+            this.label22.TabIndex = 67;
+            this.label22.Text = "BLUE";
+            // 
+            // assistTargetSelectButton
+            // 
+            this.assistTargetSelectButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.assistTargetSelectButton.FlatAppearance.BorderSize = 3;
+            this.assistTargetSelectButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.assistTargetSelectButton.Location = new System.Drawing.Point(4, 400);
+            this.assistTargetSelectButton.Name = "assistTargetSelectButton";
+            this.assistTargetSelectButton.Size = new System.Drawing.Size(144, 30);
+            this.assistTargetSelectButton.TabIndex = 38;
+            this.assistTargetSelectButton.Text = "Seleccionar target";
+            this.assistTargetSelectButton.UseVisualStyleBackColor = true;
+            this.assistTargetSelectButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.assistTargetSelectButton_MouseDown);
+            this.assistTargetSelectButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.assistTargetSelectButton_MouseUp);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(372, 219);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(43, 12);
+            this.label23.TabIndex = 66;
+            this.label23.Text = "GREEN";
+            // 
             // hpPlayerLabel
             // 
             this.hpPlayerLabel.AutoSize = true;
@@ -290,54 +413,98 @@
             this.hpPlayerLabel.TabIndex = 32;
             this.hpPlayerLabel.Text = "HP: 0%";
             // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(372, 176);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(28, 12);
+            this.label24.TabIndex = 65;
+            this.label24.Text = "RED";
+            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.LavenderBlush;
             this.panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel2.Controls.Add(this.label14);
-            this.panel2.Controls.Add(this.label1);
-            this.panel2.Controls.Add(this.assistTargetSelectButton);
+            this.panel2.Controls.Add(this.useSpoilCheckBox);
+            this.panel2.Controls.Add(this.spoilTimesTextBox);
+            this.panel2.Controls.Add(this.label17);
+            this.panel2.Controls.Add(this.pickupDelayTextBox);
+            this.panel2.Controls.Add(this.label16);
+            this.panel2.Controls.Add(this.pickupTimesTextBox);
+            this.panel2.Controls.Add(this.label15);
             this.panel2.Controls.Add(this.assistCheckBox);
-            this.panel2.Location = new System.Drawing.Point(439, 192);
+            this.panel2.Location = new System.Drawing.Point(442, 192);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(220, 166);
+            this.panel2.Size = new System.Drawing.Size(217, 166);
             this.panel2.TabIndex = 31;
             // 
-            // label14
+            // useSpoilCheckBox
             // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.label14.ForeColor = System.Drawing.Color.IndianRed;
-            this.label14.Location = new System.Drawing.Point(6, 85);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(107, 13);
-            this.label14.TabIndex = 40;
-            this.label14.Text = "Accion /assist -> F10";
+            this.useSpoilCheckBox.AutoSize = true;
+            this.useSpoilCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.useSpoilCheckBox.Location = new System.Drawing.Point(13, 96);
+            this.useSpoilCheckBox.Name = "useSpoilCheckBox";
+            this.useSpoilCheckBox.Size = new System.Drawing.Size(69, 17);
+            this.useSpoilCheckBox.TabIndex = 32;
+            this.useSpoilCheckBox.Text = "Use spoil";
+            this.useSpoilCheckBox.UseVisualStyleBackColor = true;
+            this.useSpoilCheckBox.CheckedChanged += new System.EventHandler(this.useSpoilCheckBox_CheckedChanged);
             // 
-            // label1
+            // spoilTimesTextBox
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.label1.ForeColor = System.Drawing.Color.IndianRed;
-            this.label1.Location = new System.Drawing.Point(6, 69);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(176, 13);
-            this.label1.TabIndex = 39;
-            this.label1.Text = "Macro con nombre PJ a asistir -> F9";
+            this.spoilTimesTextBox.Enabled = false;
+            this.spoilTimesTextBox.Location = new System.Drawing.Point(152, 112);
+            this.spoilTimesTextBox.MaxLength = 3;
+            this.spoilTimesTextBox.Name = "spoilTimesTextBox";
+            this.spoilTimesTextBox.Size = new System.Drawing.Size(55, 19);
+            this.spoilTimesTextBox.TabIndex = 31;
+            this.spoilTimesTextBox.TextChanged += new System.EventHandler(this.spoilTimesTextBox_TextChanged);
             // 
-            // assistTargetSelectButton
+            // label17
             // 
-            this.assistTargetSelectButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.assistTargetSelectButton.FlatAppearance.BorderSize = 3;
-            this.assistTargetSelectButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.assistTargetSelectButton.Location = new System.Drawing.Point(9, 36);
-            this.assistTargetSelectButton.Name = "assistTargetSelectButton";
-            this.assistTargetSelectButton.Size = new System.Drawing.Size(144, 30);
-            this.assistTargetSelectButton.TabIndex = 38;
-            this.assistTargetSelectButton.Text = "Seleccionar target";
-            this.assistTargetSelectButton.UseVisualStyleBackColor = true;
-            this.assistTargetSelectButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.assistTargetSelectButton_MouseDown);
-            this.assistTargetSelectButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.assistTargetSelectButton_MouseUp);
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(10, 114);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(62, 12);
+            this.label17.TabIndex = 30;
+            this.label17.Text = "Spoil times";
+            // 
+            // pickupDelayTextBox
+            // 
+            this.pickupDelayTextBox.Location = new System.Drawing.Point(152, 63);
+            this.pickupDelayTextBox.MaxLength = 3;
+            this.pickupDelayTextBox.Name = "pickupDelayTextBox";
+            this.pickupDelayTextBox.Size = new System.Drawing.Size(55, 19);
+            this.pickupDelayTextBox.TabIndex = 29;
+            this.pickupDelayTextBox.TextChanged += new System.EventHandler(this.pickupDelayTextBox_TextChanged);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(10, 66);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(150, 12);
+            this.label16.TabIndex = 28;
+            this.label16.Text = "Delay between pickups (ms)";
+            // 
+            // pickupTimesTextBox
+            // 
+            this.pickupTimesTextBox.Location = new System.Drawing.Point(152, 38);
+            this.pickupTimesTextBox.MaxLength = 3;
+            this.pickupTimesTextBox.Name = "pickupTimesTextBox";
+            this.pickupTimesTextBox.Size = new System.Drawing.Size(55, 19);
+            this.pickupTimesTextBox.TabIndex = 27;
+            this.pickupTimesTextBox.TextChanged += new System.EventHandler(this.pickupTimesTextBox_TextChanged);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(10, 41);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(71, 12);
+            this.label15.TabIndex = 26;
+            this.label15.Text = "Pickup times";
             // 
             // assistCheckBox
             // 
@@ -351,49 +518,72 @@
             this.assistCheckBox.UseVisualStyleBackColor = true;
             this.assistCheckBox.CheckedChanged += new System.EventHandler(this.asistCheckBox_CheckedChanged);
             // 
+            // targetTrackBrightness
+            // 
+            this.targetTrackBrightness.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.targetTrackBrightness.Location = new System.Drawing.Point(330, 291);
+            this.targetTrackBrightness.Maximum = 100;
+            this.targetTrackBrightness.Name = "targetTrackBrightness";
+            this.targetTrackBrightness.Size = new System.Drawing.Size(106, 45);
+            this.targetTrackBrightness.TabIndex = 64;
+            this.targetTrackBrightness.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.targetTrackBrightness.Scroll += new System.EventHandler(this.targetTrackBrightness_Scroll);
+            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.LavenderBlush;
             this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel1.Controls.Add(this.label10);
+            this.panel1.Controls.Add(this.label14);
             this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Location = new System.Drawing.Point(7, 192);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(220, 166);
+            this.panel1.Size = new System.Drawing.Size(187, 166);
             this.panel1.TabIndex = 21;
             // 
-            // label10
+            // label14
             // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.label10.ForeColor = System.Drawing.Color.IndianRed;
-            this.label10.Location = new System.Drawing.Point(3, 68);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(51, 13);
-            this.label10.TabIndex = 33;
-            this.label10.Text = "Spoil -> 3";
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.label14.ForeColor = System.Drawing.Color.IndianRed;
+            this.label14.Location = new System.Drawing.Point(3, 90);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(107, 13);
+            this.label14.TabIndex = 40;
+            this.label14.Text = "Accion /assist -> F10";
             // 
             // label9
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.label9.ForeColor = System.Drawing.Color.IndianRed;
-            this.label9.Location = new System.Drawing.Point(3, 85);
+            this.label9.Location = new System.Drawing.Point(3, 4);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(170, 13);
+            this.label9.Size = new System.Drawing.Size(95, 13);
             this.label9.TabIndex = 32;
-            this.label9.Text = "ShortCut cuando target muere -> 3";
+            this.label9.Text = "Target HP = 0 -> 3";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.label1.ForeColor = System.Drawing.Color.IndianRed;
+            this.label1.Location = new System.Drawing.Point(3, 76);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(176, 13);
+            this.label1.TabIndex = 39;
+            this.label1.Text = "Macro con nombre PJ a asistir -> F9";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.label8.ForeColor = System.Drawing.Color.IndianRed;
-            this.label8.Location = new System.Drawing.Point(3, 53);
+            this.label8.Location = new System.Drawing.Point(3, 20);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(61, 13);
             this.label8.TabIndex = 31;
@@ -404,7 +594,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.label2.ForeColor = System.Drawing.Color.IndianRed;
-            this.label2.Location = new System.Drawing.Point(2, 3);
+            this.label2.Location = new System.Drawing.Point(3, 54);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(100, 13);
             this.label2.TabIndex = 28;
@@ -415,7 +605,7 @@
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.label7.ForeColor = System.Drawing.Color.IndianRed;
-            this.label7.Location = new System.Drawing.Point(3, 36);
+            this.label7.Location = new System.Drawing.Point(3, 106);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(138, 13);
             this.label7.TabIndex = 30;
@@ -426,11 +616,22 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.label3.ForeColor = System.Drawing.Color.IndianRed;
-            this.label3.Location = new System.Drawing.Point(3, 20);
+            this.label3.Location = new System.Drawing.Point(3, 38);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(61, 13);
             this.label3.TabIndex = 29;
             this.label3.Text = "Pocion -> 5";
+            // 
+            // targetTrackBlue
+            // 
+            this.targetTrackBlue.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.targetTrackBlue.Location = new System.Drawing.Point(330, 243);
+            this.targetTrackBlue.Maximum = 100;
+            this.targetTrackBlue.Name = "targetTrackBlue";
+            this.targetTrackBlue.Size = new System.Drawing.Size(106, 45);
+            this.targetTrackBlue.TabIndex = 63;
+            this.targetTrackBlue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.targetTrackBlue.Scroll += new System.EventHandler(this.targetTrackBlue_Scroll);
             // 
             // statsConfigButton
             // 
@@ -447,6 +648,17 @@
             this.statsConfigButton.UseVisualStyleBackColor = false;
             this.statsConfigButton.Click += new System.EventHandler(this.ZoneConfigButton_Click);
             // 
+            // targetTrackGreen
+            // 
+            this.targetTrackGreen.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.targetTrackGreen.Location = new System.Drawing.Point(330, 194);
+            this.targetTrackGreen.Maximum = 100;
+            this.targetTrackGreen.Name = "targetTrackGreen";
+            this.targetTrackGreen.Size = new System.Drawing.Size(106, 45);
+            this.targetTrackGreen.TabIndex = 62;
+            this.targetTrackGreen.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.targetTrackGreen.Scroll += new System.EventHandler(this.targetTrackGreen_Scroll);
+            // 
             // statsConfigLabel
             // 
             this.statsConfigLabel.AutoSize = true;
@@ -456,6 +668,26 @@
             this.statsConfigLabel.Size = new System.Drawing.Size(81, 13);
             this.statsConfigLabel.TabIndex = 23;
             this.statsConfigLabel.Text = "Configurar zona";
+            // 
+            // targetTrackRed
+            // 
+            this.targetTrackRed.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.targetTrackRed.Location = new System.Drawing.Point(330, 154);
+            this.targetTrackRed.Maximum = 100;
+            this.targetTrackRed.Name = "targetTrackRed";
+            this.targetTrackRed.Size = new System.Drawing.Size(106, 45);
+            this.targetTrackRed.TabIndex = 61;
+            this.targetTrackRed.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.targetTrackRed.Scroll += new System.EventHandler(this.targetTrackRed_Scroll);
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(198, 139);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(50, 12);
+            this.label19.TabIndex = 60;
+            this.label19.Text = "PLAYER:";
             // 
             // statsSaveButton
             // 
@@ -473,6 +705,15 @@
             this.statsSaveButton.UseVisualStyleBackColor = false;
             this.statsSaveButton.Click += new System.EventHandler(this.StatsSaveButton_Click);
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(213, 308);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(76, 12);
+            this.label18.TabIndex = 59;
+            this.label18.Text = "BRIGHTNESS";
+            // 
             // statsCancelButton
             // 
             this.statsCancelButton.BackColor = System.Drawing.Color.White;
@@ -489,6 +730,15 @@
             this.statsCancelButton.UseVisualStyleBackColor = false;
             this.statsCancelButton.Click += new System.EventHandler(this.StatsCancelButton_Click);
             // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(223, 260);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(34, 12);
+            this.label25.TabIndex = 58;
+            this.label25.Text = "BLUE";
+            // 
             // zoneComboBox
             // 
             this.zoneComboBox.FormattingEnabled = true;
@@ -500,6 +750,15 @@
             this.zoneComboBox.Size = new System.Drawing.Size(89, 20);
             this.zoneComboBox.TabIndex = 19;
             this.zoneComboBox.SelectedIndexChanged += new System.EventHandler(this.ComboBox1_SelectedIndexChanged);
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(225, 219);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(43, 12);
+            this.label26.TabIndex = 57;
+            this.label26.Text = "GREEN";
             // 
             // label4
             // 
@@ -513,6 +772,15 @@
             this.label4.TabIndex = 18;
             this.label4.Text = "PLAYER";
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(225, 176);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(28, 12);
+            this.label27.TabIndex = 56;
+            this.label27.Text = "RED";
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -525,6 +793,17 @@
             this.label5.TabIndex = 17;
             this.label5.Text = "TARGET";
             // 
+            // playerTrackBrightness
+            // 
+            this.playerTrackBrightness.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.playerTrackBrightness.Location = new System.Drawing.Point(200, 291);
+            this.playerTrackBrightness.Maximum = 100;
+            this.playerTrackBrightness.Name = "playerTrackBrightness";
+            this.playerTrackBrightness.Size = new System.Drawing.Size(124, 45);
+            this.playerTrackBrightness.TabIndex = 55;
+            this.playerTrackBrightness.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.playerTrackBrightness.Scroll += new System.EventHandler(this.playerTrackBrightness_Scroll);
+            // 
             // alwaysOnTopCheckBox
             // 
             this.alwaysOnTopCheckBox.AutoSize = true;
@@ -536,6 +815,39 @@
             this.alwaysOnTopCheckBox.Text = "Ventana siempre visible";
             this.alwaysOnTopCheckBox.UseVisualStyleBackColor = true;
             this.alwaysOnTopCheckBox.CheckedChanged += new System.EventHandler(this.WindowVisibilityCheckBox_CheckedChanged);
+            // 
+            // playerTrackBlue
+            // 
+            this.playerTrackBlue.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.playerTrackBlue.Location = new System.Drawing.Point(200, 243);
+            this.playerTrackBlue.Maximum = 100;
+            this.playerTrackBlue.Name = "playerTrackBlue";
+            this.playerTrackBlue.Size = new System.Drawing.Size(124, 45);
+            this.playerTrackBlue.TabIndex = 54;
+            this.playerTrackBlue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.playerTrackBlue.Scroll += new System.EventHandler(this.playerTrackBlue_Scroll);
+            // 
+            // playerTrackGreen
+            // 
+            this.playerTrackGreen.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.playerTrackGreen.Location = new System.Drawing.Point(200, 194);
+            this.playerTrackGreen.Maximum = 100;
+            this.playerTrackGreen.Name = "playerTrackGreen";
+            this.playerTrackGreen.Size = new System.Drawing.Size(122, 45);
+            this.playerTrackGreen.TabIndex = 53;
+            this.playerTrackGreen.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.playerTrackGreen.Scroll += new System.EventHandler(this.playerTrackGreen_Scroll);
+            // 
+            // playerTrackRed
+            // 
+            this.playerTrackRed.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.playerTrackRed.Location = new System.Drawing.Point(200, 154);
+            this.playerTrackRed.Maximum = 100;
+            this.playerTrackRed.Name = "playerTrackRed";
+            this.playerTrackRed.Size = new System.Drawing.Size(122, 45);
+            this.playerTrackRed.TabIndex = 52;
+            this.playerTrackRed.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.playerTrackRed.Scroll += new System.EventHandler(this.playerTrackRed_Scroll);
             // 
             // TabContainer
             // 
@@ -604,7 +916,7 @@
             this.selectedWindowName.Location = new System.Drawing.Point(315, 13);
             this.selectedWindowName.Name = "selectedWindowName";
             this.selectedWindowName.Size = new System.Drawing.Size(109, 24);
-            this.selectedWindowName.TabIndex = 38;
+            this.selectedWindowName.TabIndex = 36;
             this.selectedWindowName.Text = "No Window";
             // 
             // button1
@@ -629,7 +941,7 @@
             this.userNameTextBox.ForeColor = System.Drawing.Color.Coral;
             this.userNameTextBox.Location = new System.Drawing.Point(143, 16);
             this.userNameTextBox.Name = "userNameTextBox";
-            this.userNameTextBox.Size = new System.Drawing.Size(280, 19);
+            this.userNameTextBox.Size = new System.Drawing.Size(148, 19);
             this.userNameTextBox.TabIndex = 36;
             this.userNameTextBox.Text = "NINGUNO";
             this.userNameTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.userNameTextBox_KeyDown);
@@ -748,6 +1060,7 @@
             this.panel10.Controls.Add(this.recoverMPCheckBox);
             this.panel10.Controls.Add(this.recoverMPSitTextBox);
             this.panel10.Controls.Add(this.label12);
+            this.panel10.Enabled = false;
             this.panel10.Location = new System.Drawing.Point(6, 175);
             this.panel10.Name = "panel10";
             this.panel10.Size = new System.Drawing.Size(192, 68);
@@ -802,6 +1115,7 @@
             this.panel11.Controls.Add(this.autoPotCheckBox);
             this.panel11.Controls.Add(this.autoPotTextBox);
             this.panel11.Controls.Add(this.label13);
+            this.panel11.Enabled = false;
             this.panel11.Location = new System.Drawing.Point(6, 119);
             this.panel11.Name = "panel11";
             this.panel11.Size = new System.Drawing.Size(192, 51);
@@ -847,7 +1161,7 @@
             "Pausar bot si me baja la CP"});
             this.checkedListBox2.Location = new System.Drawing.Point(458, 141);
             this.checkedListBox2.Name = "checkedListBox2";
-            this.checkedListBox2.Size = new System.Drawing.Size(202, 74);
+            this.checkedListBox2.Size = new System.Drawing.Size(202, 60);
             this.checkedListBox2.TabIndex = 10;
             // 
             // skillConfigTabPage
@@ -869,6 +1183,46 @@
             this.targetConfigTabPage.TabIndex = 3;
             this.targetConfigTabPage.Text = "Target Configuration";
             this.targetConfigTabPage.UseVisualStyleBackColor = true;
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(229, 356);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(28, 12);
+            this.label28.TabIndex = 71;
+            this.label28.Text = "HUE";
+            // 
+            // playerTrackHue
+            // 
+            this.playerTrackHue.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.playerTrackHue.Location = new System.Drawing.Point(199, 337);
+            this.playerTrackHue.Maximum = 360;
+            this.playerTrackHue.Name = "playerTrackHue";
+            this.playerTrackHue.Size = new System.Drawing.Size(151, 45);
+            this.playerTrackHue.TabIndex = 70;
+            this.playerTrackHue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.playerTrackHue.Scroll += new System.EventHandler(this.playerTrackHue_Scroll);
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(402, 356);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(28, 12);
+            this.label29.TabIndex = 73;
+            this.label29.Text = "HUE";
+            // 
+            // targetTrackHue
+            // 
+            this.targetTrackHue.BackColor = System.Drawing.Color.PaleVioletRed;
+            this.targetTrackHue.Location = new System.Drawing.Point(356, 337);
+            this.targetTrackHue.Maximum = 360;
+            this.targetTrackHue.Name = "targetTrackHue";
+            this.targetTrackHue.Size = new System.Drawing.Size(124, 45);
+            this.targetTrackHue.TabIndex = 72;
+            this.targetTrackHue.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.targetTrackHue.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
             // Form1
             // 
@@ -896,8 +1250,16 @@
             this.containerPanel.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackBrightness)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackBlue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackGreen)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackRed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackBrightness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackBlue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackGreen)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackRed)).EndInit();
             this.TabContainer.ResumeLayout(false);
             this.botTabPage.ResumeLayout(false);
             this.botConfigTabPanel.ResumeLayout(false);
@@ -908,6 +1270,8 @@
             this.panel10.PerformLayout();
             this.panel11.ResumeLayout(false);
             this.panel11.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.playerTrackHue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetTrackHue)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -968,7 +1332,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button assistTargetSelectButton;
@@ -976,6 +1339,36 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label hpPlayerLabel;
         private System.Windows.Forms.Label hpTargetLabel;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox pickupDelayTextBox;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox pickupTimesTextBox;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.CheckBox useSpoilCheckBox;
+        private System.Windows.Forms.TextBox spoilTimesTextBox;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TrackBar targetTrackBrightness;
+        private System.Windows.Forms.TrackBar targetTrackBlue;
+        private System.Windows.Forms.TrackBar targetTrackGreen;
+        private System.Windows.Forms.TrackBar targetTrackRed;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.TrackBar playerTrackBrightness;
+        private System.Windows.Forms.TrackBar playerTrackBlue;
+        private System.Windows.Forms.TrackBar playerTrackGreen;
+        private System.Windows.Forms.TrackBar playerTrackRed;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.TrackBar playerTrackHue;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.TrackBar targetTrackHue;
     }
 }
 
